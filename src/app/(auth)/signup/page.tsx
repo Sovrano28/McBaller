@@ -29,6 +29,19 @@ export default function SignupPage() {
     const formData = new FormData(event.currentTarget);
     const fullName = formData.get('full-name') as string;
     const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      toast({
+        variant: 'destructive',
+        title: 'Weak Password',
+        description:
+          'Password must be at least 8 characters long and include uppercase and lowercase letters, a number, and a symbol.',
+      });
+      return;
+    }
     
     const newUser: Player = {
         id: new Date().toISOString(),
