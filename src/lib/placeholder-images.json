@@ -1,3 +1,70 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "player1-avatar",
+      "description": "Avatar of a basketball player",
+      "imageUrl": "https://images.unsplash.com/photo-1607031542107-f6f46b5d54e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjE1NjA4MTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "player2-avatar",
+      "description": "Avatar of another basketball player",
+      "imageUrl": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MTQ5MDEzNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "player3-avatar",
+      "description": "Avatar of a third basketball player",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjE1NDUzOTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "player4-avatar",
+      "description": "Avatar of a fourth basketball player",
+      "imageUrl": "https://images.unsplash.com/photo-1584992120020-defa7d36fdfb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiYXNrZXRiYWxsJTIwcGxheWVyfGVufDB8fHx8MTc2MTQ5Mjg3N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball player"
+    },
+    {
+      "id": "post1-media",
+      "description": "A basketball player dunking",
+      "imageUrl": "https://images.unsplash.com/photo-1579487685737-e435a87b2518?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxiYXNrZXRiYWxsJTIwZHVua3xlbnwwfHx8fDE3NjE1NjA0ODJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball dunk"
+    },
+    {
+      "id": "post2-media",
+      "description": "A basketball court",
+      "imageUrl": "https://images.unsplash.com/photo-1496033604106-04799291ee86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxiYXNrZXRiYWxsJTIwY291cnR8ZW58MHx8fHwxNzYxNTMzNjk0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball court"
+    },
+    {
+      "id": "post3-media",
+      "description": "A basketball player shooting a free throw",
+      "imageUrl": "https://images.unsplash.com/photo-1706841724099-cc52f534e4d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxiYXNrZXRiYWxsJTIwc2hvb3Rpbmd8ZW58MHx8fHwxNzYxNTg3NjY4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball shooting"
+    },
+    {
+      "id": "profile-hero",
+      "description": "A basketball player in action on a court",
+      "imageUrl": "https://images.unsplash.com/photo-1759694542153-ad02551b15b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxiYXNrZXRiYWxsJTIwYWN0aW9ufGVufDB8fHx8MTc2MTU4NzY2OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basketball action"
+    },
+    {
+      "id": "training1",
+      "description": "A person stretching",
+      "imageUrl": "https://images.unsplash.com/photo-1600881333161-35a5c046df33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzdHJldGNoaW5nJTIwd29ya291dHxlbnwwfHx8fDE3NjE1ODc2Njh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "stretching workout"
+    },
+    {
+      "id": "training2",
+      "description": "A person lifting weights",
+      "imageUrl": "https://images.unsplash.com/photo-1722925541142-5db2668ca492?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx3ZWlnaHQlMjBsaWZ0aW5nfGVufDB8fHx8MTc2MTUwMDk1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "weight lifting"
+    },
+    {
+      "id": "training3",
+      "description": "A person doing cardio",
+      "imageUrl": "https://images.unsplash.com/photo-1571388208497-71bedc66e932?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxjYXJkaW8lMjB3b3Jrb3V0fGVufDB8fHx8MTc2MTU4NzY2OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cardio workout"
+    }
+  ]
 }
