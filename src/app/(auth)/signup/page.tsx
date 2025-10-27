@@ -19,7 +19,7 @@ export default function SignupPage() {
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="full-name">Full Name</Label>
-            <Input id="full-name" placeholder="LeBron James" required />
+            <Input id="full-name" placeholder="Lionel Messi" required />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>

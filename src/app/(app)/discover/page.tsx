@@ -7,7 +7,7 @@ export default function DiscoverPage() {
       <div className="mb-8 text-center">
         <h1 className="font-headline text-4xl font-bold">Discover Talent</h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Find the next generation of basketball superstars.
+          Find the next generation of soccer superstars.
         </p>
       </div>
 

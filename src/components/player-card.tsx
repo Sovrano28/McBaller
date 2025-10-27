@@ -25,16 +25,16 @@ export function PlayerCard({ player }: PlayerCardProps) {
       </CardHeader>
       <CardContent className="grid grid-cols-3 gap-2 p-4 pt-0 text-center">
         <div className="rounded-md bg-muted/50 p-2">
-          <p className="text-sm text-muted-foreground">PPG</p>
-          <p className="font-semibold">{player.stats.points}</p>
+          <p className="text-sm text-muted-foreground">Goals</p>
+          <p className="font-semibold">{player.stats.goals}</p>
         </div>
         <div className="rounded-md bg-muted/50 p-2">
-          <p className="text-sm text-muted-foreground">RPG</p>
-          <p className="font-semibold">{player.stats.rebounds}</p>
-        </div>
-        <div className="rounded-md bg-muted/50 p-2">
-          <p className="text-sm text-muted-foreground">APG</p>
+          <p className="text-sm text-muted-foreground">Assists</p>
           <p className="font-semibold">{player.stats.assists}</p>
+        </div>
+        <div className="rounded-md bg-muted/50 p-2">
+          <p className="text-sm text-muted-foreground">Tackles</p>
+          <p className="font-semibold">{player.stats.tackles}</p>
         </div>
       </CardContent>
       <CardFooter className="p-0">

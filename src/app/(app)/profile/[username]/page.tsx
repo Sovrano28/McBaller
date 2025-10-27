@@ -31,7 +31,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
             alt={`${player.name} in action`}
             fill
             className="object-cover"
-            data-ai-hint="basketball action"
+            data-ai-hint="soccer action"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
         </div>
@@ -77,9 +77,9 @@ export default function ProfilePage({ params }: { params: { username: string } }
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <p><strong>Position:</strong> {player.position}</p>
-                <p><strong>Team:</strong> {player.team}</p>
-                <p><strong>Height:</strong> {player.height}</p>
-                <p><strong>Weight:</strong> {player.weight} lbs</p>
+                <p><strong>Club:</strong> {player.team}</p>
+                <p><strong>Height:</strong> {player.height} cm</p>
+                <p><strong>Weight:</strong> {player.weight} kg</p>
               </CardContent>
             </Card>
           </div>
@@ -98,7 +98,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
                       alt={`Gallery image ${i + 1}`}
                       fill
                       className="object-cover transition-transform hover:scale-105"
-                      data-ai-hint="basketball player"
+                      data-ai-hint="soccer player"
                     />
                   </div>
                 ))}
@@ -116,26 +116,26 @@ export default function ProfilePage({ params }: { params: { username: string } }
                 <TableHeader>
                   <TableRow>
                     <TableHead>Season</TableHead>
-                    <TableHead>Team</TableHead>
-                    <TableHead className="text-right">PPG</TableHead>
-                    <TableHead className="text-right">RPG</TableHead>
-                    <TableHead className="text-right">APG</TableHead>
+                    <TableHead>Club</TableHead>
+                    <TableHead className="text-right">Goals</TableHead>
+                    <TableHead className="text-right">Assists</TableHead>
+                    <TableHead className="text-right">Tackles</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   <TableRow>
                     <TableCell>2023-2024</TableCell>
                     <TableCell>{player.team}</TableCell>
-                    <TableCell className="text-right">{player.stats.points}</TableCell>
-                    <TableCell className="text-right">{player.stats.rebounds}</TableCell>
+                    <TableCell className="text-right">{player.stats.goals}</TableCell>
                     <TableCell className="text-right">{player.stats.assists}</TableCell>
+                    <TableCell className="text-right">{player.stats.tackles}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell>2022-2023</TableCell>
-                    <TableCell>College Team</TableCell>
-                    <TableCell className="text-right">22.1</TableCell>
-                    <TableCell className="text-right">8.5</TableCell>
-                    <TableCell className="text-right">2.3</TableCell>
+                    <TableCell>Youth Academy</TableCell>
+                    <TableCell className="text-right">22</TableCell>
+                    <TableCell className="text-right">15</TableCell>
+                    <TableCell className="text-right">41</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

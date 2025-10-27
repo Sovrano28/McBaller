@@ -3,15 +3,15 @@ export type Player = {
   name: string;
   username: string;
   avatar: string;
-  position: 'Point Guard' | 'Shooting Guard' | 'Small Forward' | 'Power Forward' | 'Center';
+  position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward';
   stats: {
-    points: number;
-    rebounds: number;
+    goals: number;
     assists: number;
+    tackles: number;
   };
   bio: string;
   team: string;
-  height: string;
+  height: number;
   weight: number;
 };
 
@@ -44,51 +44,51 @@ export type TrainingPlan = {
 export const players: Player[] = [
   {
     id: '1',
-    name: 'Jalen Green',
-    username: 'jalengreen',
+    name: 'Leo Martinez',
+    username: 'leomartinez',
     avatar: 'https://picsum.photos/seed/p1/100/100',
-    position: 'Shooting Guard',
-    stats: { points: 28.5, rebounds: 5.2, assists: 3.5 },
-    bio: 'Explosive shooting guard with a knack for scoring. 2nd year pro out of the G-League Ignite.',
-    team: 'Houston Rockets',
-    height: "6'4\"",
-    weight: 186,
+    position: 'Forward',
+    stats: { goals: 28, assists: 12, tackles: 15 },
+    bio: 'Pacy forward with a clinical finishing touch. A rising star from Buenos Aires.',
+    team: 'Paris Saint-Germain',
+    height: 170,
+    weight: 68,
   },
   {
     id: '2',
-    name: 'Arike Ogunbowale',
-    username: 'arikeo',
+    name: 'Samantha Kerr',
+    username: 'samkerr',
     avatar: 'https://picsum.photos/seed/p2/100/100',
-    position: 'Point Guard',
-    stats: { points: 22.8, rebounds: 3.4, assists: 4.5 },
-    bio: 'Clutch player with deep range. Known for hitting big shots in big moments.',
-    team: 'Dallas Wings',
-    height: "5'8\"",
-    weight: 145,
+    position: 'Forward',
+    stats: { goals: 25, assists: 8, tackles: 10 },
+    bio: 'World-renowned striker, famous for her acrobatic goals and leadership on the pitch.',
+    team: 'Chelsea F.C. Women',
+    height: 167,
+    weight: 60,
   },
   {
     id: '3',
-    name: 'Victor Wembanyama',
-    username: 'wemby',
+    name: 'Jamal Musiala',
+    username: 'jamalmusiala',
     avatar: 'https://picsum.photos/seed/p3/100/100',
-    position: 'Center',
-    stats: { points: 21.4, rebounds: 10.6, assists: 3.9 },
-    bio: 'Generational talent with unprecedented size and skill. Rookie of the Year.',
-    team: 'San Antonio Spurs',
-    height: "7'4\"",
-    weight: 209,
+    position: 'Midfielder',
+    stats: { goals: 12, assists: 18, tackles: 35 },
+    bio: 'Creative attacking midfielder with incredible dribbling skills. A generational talent.',
+    team: 'FC Bayern Munich',
+    height: 183,
+    weight: 72,
   },
   {
     id: '4',
-    name: 'Chioma Okonkwo',
-    username: 'chioma_o',
+    name: 'Folake Ojo',
+    username: 'folake_ojo',
     avatar: 'https://picsum.photos/seed/p4/100/100',
-    position: 'Power Forward',
-    stats: { points: 18.2, rebounds: 11.1, assists: 2.1 },
-    bio: 'Dominant force in the paint, leading the league in rebounding. Hails from Lagos, Nigeria.',
-    team: 'Lagos City Ballers',
-    height: "6'2\"",
-    weight: 180,
+    position: 'Defender',
+    stats: { goals: 3, assists: 5, tackles: 55 },
+    bio: 'Rock-solid center-back, known for her tough tackling and aerial dominance. Hails from Lagos, Nigeria.',
+    team: 'Lagos City Queens',
+    height: 178,
+    weight: 70,
   },
 ];
 
@@ -96,11 +96,11 @@ export const posts: Post[] = [
   {
     id: '1',
     player: players[0],
-    content: 'Great team win tonight! Felt good to be back on the court. The energy in the building was electric. 🔥 #OnTheRise',
+    content: 'What a match! Incredible atmosphere from the fans tonight. Three points in the bag. On to the next one! #HalaMadrid',
     media: {
       type: 'image',
       url: 'https://picsum.photos/seed/post1/600/400',
-      hint: 'basketball dunk',
+      hint: 'soccer goal',
     },
     likes: 1203,
     comments: 88,
@@ -109,7 +109,7 @@ export const posts: Post[] = [
   {
     id: '2',
     player: players[1],
-    content: 'Putting in the work day in, day out. The season is a marathon, not a sprint. Trust the process. 💪 #GrindNeverStops',
+    content: 'Drills in the rain. Building character and resilience. No excuses. ⚽️💧 #TrainHard',
     likes: 854,
     comments: 45,
     createdAt: '1d ago',
@@ -117,11 +117,11 @@ export const posts: Post[] = [
   {
     id: '3',
     player: players[3],
-    content: 'Honored to be named player of the week! Couldn\'t have done it without my amazing teammates and coaches. We keep building!',
+    content: 'Proud to be named player of the match! Huge team effort today. We keep fighting together. 💪',
     media: {
       type: 'image',
       url: 'https://picsum.photos/seed/post3/600/500',
-      hint: 'basketball shooting',
+      hint: 'soccer tackle',
     },
     likes: 2500,
     comments: 150,
@@ -130,7 +130,7 @@ export const posts: Post[] = [
   {
     id: '4',
     player: players[2],
-    content: 'Learning so much in my rookie year. Every game is a new challenge. Appreciate all the fan support!',
+    content: 'Great session with the team. Perfecting those final passes. The beautiful game is all about connection. 🤝',
     likes: 9870,
     comments: 653,
     createdAt: '5d ago',
@@ -140,27 +140,27 @@ export const posts: Post[] = [
 export const trainingPlans: TrainingPlan[] = [
   {
     id: '1',
-    title: 'Explosive Vertical Leap Program',
-    description: 'A 6-week program designed to increase your vertical jump through plyometrics and strength training.',
-    author: 'Dr. Mike Idowu',
-    authorTitle: 'Sports Performance PhD',
-    image: { url: 'https://picsum.photos/seed/train1/400/250', hint: 'stretching workout' },
+    title: 'Precision Finishing Drills',
+    description: 'A 6-week program to sharpen your shooting accuracy and power in front of the goal.',
+    author: 'Coach Jurgen Schmidt',
+    authorTitle: 'UEFA Pro License Coach',
+    image: { url: 'https://picsum.photos/seed/train1/400/250', hint: 'soccer training' },
   },
   {
     id: '2',
-    title: 'Ball Handling Mastery',
-    description: 'Daily drills to improve your dribbling skills, hand-eye coordination, and confidence with the ball.',
-    author: 'Coach Ayo Balogun',
-    authorTitle: 'Professional Skills Trainer',
-    image: { url: 'https://picsum.photos/seed/train2/400/250', hint: 'basketball practice' },
+    title: 'Midfield Maestro Masterclass',
+    description: 'Daily drills to improve your passing range, vision, and ball control under pressure.',
+    author: 'Xavi Alonso',
+    authorTitle: 'Legendary Midfielder',
+    image: { url: 'https://picsum.photos/seed/train2/400/250', hint: 'soccer practice' },
   },
   {
     id: '3',
-    title: 'In-Season Strength Maintenance',
-    description: 'Maintain your strength and prevent injuries during the long season with this curated workout plan.',
-    author: 'Femi Adebayo',
-    authorTitle: 'Certified Strength Coach',
-    image: { url: 'https://picsum.photos/seed/train3/400/250', hint: 'weight lifting' },
+    title: 'Defensive Wall Workouts',
+    description: 'Stay strong and agile throughout the season with workouts focused on tackling, positioning, and speed.',
+    author: 'Chiara Bianchi',
+    authorTitle: 'Lead Defensive Coach',
+    image: { url: 'https://picsum.photos/seed/train3/400/250', hint: 'gym workout' },
   },
 ];
 

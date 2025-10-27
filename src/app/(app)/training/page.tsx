@@ -9,7 +9,7 @@ export default function TrainingPage() {
       <div className="mb-8 text-center">
         <h1 className="font-headline text-4xl font-bold">Personalized Training</h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Expert recommendations to elevate your game.
+          Expert recommendations to elevate your football skills.
         </p>
       </div>
 
