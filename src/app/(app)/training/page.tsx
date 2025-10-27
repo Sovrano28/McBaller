@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import Link from 'next/link';
 import { trainingPlans } from '@/lib/mock-data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +38,9 @@ export default function TrainingPage() {
               </p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Start Program</Button>
+              <Button asChild className="w-full">
+                <Link href="/signup">Start Program</Link>
+              </Button>
             </CardFooter>
           </Card>
         ))}

@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import React from 'react';
 import {
   BarChart2,
   Bell,
@@ -41,10 +42,18 @@ import { players } from '@/lib/mock-data';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isActive = (path: string) => pathname === path;
 
-  // Mock current user
-  const currentUser = players[3];
+  // Mock authentication state
+  const [currentUser, setCurrentUser] = React.useState<typeof players[0] | null>(
+    players[3]
+  );
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    router.push('/login');
+  };
 
   const navItems = [
     { href: '/', label: 'Feed', icon: LayoutGrid,_id:"1" },
@@ -73,17 +82,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
-        <SidebarFooter>
-          <Link href={`/profile/${currentUser.username}`}>
-            <SidebarMenuButton tooltip="Profile">
-              <Avatar className="h-7 w-7">
-                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <span className="truncate">{currentUser.name}</span>
-            </SidebarMenuButton>
-          </Link>
-        </SidebarFooter>
+        {currentUser && (
+          <SidebarFooter>
+            <Link href={`/profile/${currentUser.username}`}>
+              <SidebarMenuButton tooltip="Profile">
+                <Avatar className="h-7 w-7">
+                  <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                  <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span className="truncate">{currentUser.name}</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarFooter>
+        )}
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:h-16 sm:px-6">
@@ -96,35 +107,41 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="w-full rounded-lg bg-card pl-8 md:w-[280px] lg:w-[320px]"
             />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                  <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href={`/profile/${currentUser.username}`}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {currentUser ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                    <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={`/profile/${currentUser.username}`}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild>
+              <Link href="/login">Log In</Link>
+            </Button>
+          )}
         </header>
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
       </SidebarInset>

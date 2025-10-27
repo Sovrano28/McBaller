@@ -1,5 +1,8 @@
+'use client';
+
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { players } from '@/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -45,11 +48,15 @@ export default function ProfilePage({ params }: { params: { username: string } }
             <p className="text-muted-foreground">@{player.username}</p>
           </div>
           <div className="mt-4 flex gap-2 md:ml-auto">
-            <Button>
-              <UserPlus className="mr-2 h-4 w-4" /> Follow
+            <Button asChild>
+              <Link href="/signup">
+                <UserPlus className="mr-2 h-4 w-4" /> Follow
+              </Link>
             </Button>
-            <Button variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Star className="mr-2 h-4 w-4" /> Sponsor
+            <Button asChild variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Link href="/signup">
+                <Star className="mr-2 h-4 w-4" /> Sponsor
+              </Link>
             </Button>
           </div>
         </div>
