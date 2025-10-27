@@ -49,7 +49,7 @@ export default function SignupPage() {
         name: fullName,
         username: fullName.toLowerCase().replace(/\s/g, ''),
         email: email,
-        avatar: 'https://picsum.photos/seed/newuser/100/100',
+        avatar: `https://picsum.photos/seed/${fullName.split(' ')[0]}/100/100`,
         position: 'Forward',
         stats: { goals: 0, assists: 0, tackles: 0 },
         bio: 'A new player on the McBaller platform!',
@@ -57,8 +57,13 @@ export default function SignupPage() {
         height: 180,
         weight: 75,
     };
+    
+    // Save user to a separate list in local storage
+    const users = JSON.parse(localStorage.getItem('mcballer-users') || '[]');
+    users.push(newUser);
+    localStorage.setItem('mcballer-users', JSON.stringify(users));
 
-    login(newUser);
+    login(newUser); // This sets the *current* user
     router.push('/');
      toast({
         title: 'Account Created!',

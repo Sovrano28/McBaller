@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import React, { useState } from 'react';
+import type { Player } from '@/lib/mock-data';
 import { players } from '@/lib/mock-data';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -29,9 +30,11 @@ export default function LoginPage() {
     const formData = new FormData(event.currentTarget);
     const email = formData.get('email') as string;
 
-    // In a real app, you'd validate the password too.
-    // For this demo, we'll just log in the first user.
-    const user = players.find(p => p.email.toLowerCase() === email.toLowerCase());
+    // Combine mock players with any users from local storage
+    const storedUsers = JSON.parse(localStorage.getItem('mcballer-users') || '[]');
+    const allUsers: Player[] = [...players, ...storedUsers];
+
+    const user = allUsers.find(p => p.email.toLowerCase() === email.toLowerCase());
 
     if (user) {
       login(user);
