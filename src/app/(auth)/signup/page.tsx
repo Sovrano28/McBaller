@@ -14,15 +14,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { User, Shield, Star } from 'lucide-react';
+import { User, Shield, Star, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Player } from '@/lib/mock-data';
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function SignupPage() {
   const { login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -92,7 +93,30 @@ export default function SignupPage() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" name="password" type="password" required />
+             <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground"
+                onMouseDown={() => setShowPassword(true)}
+                onMouseUp={() => setShowPassword(false)}
+                onMouseLeave={() => setShowPassword(false)}
+                onTouchStart={() => setShowPassword(true)}
+                onTouchEnd={() => setShowPassword(false)}
+              >
+                {showPassword ? <EyeOff /> : <Eye />}
+                <span className="sr-only">
+                  {showPassword ? 'Hide password' : 'Show password'}
+                </span>
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-2">
