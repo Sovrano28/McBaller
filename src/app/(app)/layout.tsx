@@ -38,28 +38,24 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { players } from '@/lib/mock-data';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const isActive = (path: string) => pathname === path;
-
-  // Mock authentication state
-  const [currentUser, setCurrentUser] = React.useState<typeof players[0] | null>(
-    players[3]
-  );
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    logout();
     router.push('/login');
   };
 
   const navItems = [
-    { href: '/', label: 'Feed', icon: LayoutGrid,_id:"1" },
-    { href: '/discover', label: 'Discover', icon: Search,_id:"2" },
-    { href: '/training', label: 'Training', icon: ClipboardList,_id:"3" },
-    { href: '/analytics', label: 'Analytics', icon: BarChart2,_id:"4" },
+    { href: '/', label: 'Feed', icon: LayoutGrid, _id: '1' },
+    { href: '/discover', label: 'Discover', icon: Search, _id: '2' },
+    { href: '/training', label: 'Training', icon: ClipboardList, _id: '3' },
+    { href: '/analytics', label: 'Analytics', icon: BarChart2, _id: '4' },
   ];
 
   return (
@@ -73,7 +69,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href}>
-                  <SidebarMenuButton isActive={isActive(item.href)} tooltip={item.label}>
+                  <SidebarMenuButton
+                    isActive={isActive(item.href)}
+                    tooltip={item.label}
+                  >
                     <item.icon />
                     <span>{item.label}</span>
                   </SidebarMenuButton>
@@ -82,15 +81,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
-        {currentUser && (
+        {user && (
           <SidebarFooter>
-            <Link href={`/profile/${currentUser.username}`}>
+            <Link href={`/profile/${user.username}`}>
               <SidebarMenuButton tooltip="Profile">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                  <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <span className="truncate">{currentUser.name}</span>
+                <span className="truncate">{user.name}</span>
               </SidebarMenuButton>
             </Link>
           </SidebarFooter>
@@ -107,13 +106,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="w-full rounded-lg bg-card pl-8 md:w-[280px] lg:w-[320px]"
             />
           </div>
-          {currentUser ? (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-                    <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -121,7 +120,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href={`/profile/${currentUser.username}`}>
+                  <Link href={`/profile/${user.username}`}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </Link>

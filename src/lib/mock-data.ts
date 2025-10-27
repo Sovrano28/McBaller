@@ -2,6 +2,7 @@ export type Player = {
   id: string;
   name: string;
   username: string;
+  email: string;
   avatar: string;
   position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward';
   stats: {
@@ -46,6 +47,7 @@ export const players: Player[] = [
     id: '1',
     name: 'Leo Martinez',
     username: 'leomartinez',
+    email: 'leo@test.com',
     avatar: 'https://picsum.photos/seed/p1/100/100',
     position: 'Forward',
     stats: { goals: 28, assists: 12, tackles: 15 },
@@ -58,6 +60,7 @@ export const players: Player[] = [
     id: '2',
     name: 'Samantha Kerr',
     username: 'samkerr',
+    email: 'sam@test.com',
     avatar: 'https://picsum.photos/seed/p2/100/100',
     position: 'Forward',
     stats: { goals: 25, assists: 8, tackles: 10 },
@@ -70,6 +73,7 @@ export const players: Player[] = [
     id: '3',
     name: 'Jamal Musiala',
     username: 'jamalmusiala',
+    email: 'jamal@test.com',
     avatar: 'https://picsum.photos/seed/p3/100/100',
     position: 'Midfielder',
     stats: { goals: 12, assists: 18, tackles: 35 },
@@ -82,6 +86,7 @@ export const players: Player[] = [
     id: '4',
     name: 'Folake Ojo',
     username: 'folake_ojo',
+    email: 'folake@test.com',
     avatar: 'https://picsum.photos/seed/p4/100/100',
     position: 'Defender',
     stats: { goals: 3, assists: 5, tackles: 55 },

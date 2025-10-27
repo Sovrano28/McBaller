@@ -17,13 +17,18 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function ProfilePage({ params }: { params: { username: string } }) {
+  const { user: loggedInUser } = useAuth();
   const player = players.find((p) => p.username === params.username);
 
   if (!player) {
     notFound();
   }
+
+  const isOwnProfile = loggedInUser?.username === player.username;
+
 
   return (
     <div className="space-y-6">
@@ -48,16 +53,20 @@ export default function ProfilePage({ params }: { params: { username: string } }
             <p className="text-muted-foreground">@{player.username}</p>
           </div>
           <div className="mt-4 flex gap-2 md:ml-auto">
-            <Button asChild>
-              <Link href="/signup">
-                <UserPlus className="mr-2 h-4 w-4" /> Follow
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Link href="/signup">
-                <Star className="mr-2 h-4 w-4" /> Sponsor
-              </Link>
-            </Button>
+            {!isOwnProfile && (
+               <>
+                <Button asChild>
+                  <Link href={loggedInUser ? '#' : '/signup'}>
+                    <UserPlus className="mr-2 h-4 w-4" /> Follow
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                  <Link href={loggedInUser ? '#' : '/signup'}>
+                    <Star className="mr-2 h-4 w-4" /> Sponsor
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </Card>

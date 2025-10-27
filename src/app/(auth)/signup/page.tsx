@@ -1,40 +1,100 @@
 'use client';
 
+import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { User, Shield, Star } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import type { Player } from '@/lib/mock-data';
+import React from 'react';
 
 export default function SignupPage() {
+  const { login } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const fullName = formData.get('full-name') as string;
+    const email = formData.get('email') as string;
+    
+    const newUser: Player = {
+        id: new Date().toISOString(),
+        name: fullName,
+        username: fullName.toLowerCase().replace(/\s/g, ''),
+        email: email,
+        avatar: 'https://picsum.photos/seed/newuser/100/100',
+        position: 'Forward',
+        stats: { goals: 0, assists: 0, tackles: 0 },
+        bio: 'A new player on the McBaller platform!',
+        team: 'Unattached',
+        height: 180,
+        weight: 75,
+    };
+
+    login(newUser);
+    router.push('/');
+     toast({
+        title: 'Account Created!',
+        description: `Welcome to McBaller, ${newUser.name}!`,
+      });
+  };
+
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="font-headline text-2xl">Sign Up</CardTitle>
-        <CardDescription>Create your McBaller account to get started.</CardDescription>
+        <CardDescription>
+          Create your McBaller account to get started.
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="full-name">Full Name</Label>
-            <Input id="full-name" placeholder="Lionel Messi" required />
+            <Input id="full-name" name="full-name" placeholder="Lionel Messi" required />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="m@example.com" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="m@example.com"
+              required
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required />
+            <Input id="password" name="password" type="password" required />
           </div>
 
           <div className="grid gap-2">
             <Label>I am a...</Label>
-            <RadioGroup defaultValue="player" className="grid grid-cols-3 gap-4">
+            <RadioGroup
+              defaultValue="player"
+              name="role"
+              className="grid grid-cols-3 gap-4"
+            >
               <div>
-                <RadioGroupItem value="player" id="player" className="peer sr-only" />
+                <RadioGroupItem
+                  value="player"
+                  id="player"
+                  className="peer sr-only"
+                />
                 <Label
                   htmlFor="player"
                   className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
@@ -44,7 +104,11 @@ export default function SignupPage() {
                 </Label>
               </div>
               <div>
-                <RadioGroupItem value="scout" id="scout" className="peer sr-only" />
+                <RadioGroupItem
+                  value="scout"
+                  id="scout"
+                  className="peer sr-only"
+                />
                 <Label
                   htmlFor="scout"
                   className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
@@ -69,7 +133,7 @@ export default function SignupPage() {
           <Button type="submit" className="w-full">
             Create Account
           </Button>
-        </div>
+        </form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{' '}
           <Link href="/login" className="underline">

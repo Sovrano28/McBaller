@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { trainingPlans } from '@/lib/mock-data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function TrainingPage() {
+  const { user } = useAuth();
   return (
     <div className="container mx-auto">
       <div className="mb-8 text-center">
@@ -39,7 +41,7 @@ export default function TrainingPage() {
             </CardContent>
             <CardFooter>
               <Button asChild className="w-full">
-                <Link href="/signup">Start Program</Link>
+                <Link href={user ? '#' : '/signup'}>Start Program</Link>
               </Button>
             </CardFooter>
           </Card>
