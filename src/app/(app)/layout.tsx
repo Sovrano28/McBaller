@@ -5,14 +5,17 @@ import { usePathname, useRouter } from 'next/navigation';
 import React from 'react';
 import {
   BarChart2,
-  Bell,
-  ClipboardList,
+  Dumbbell,
+  Apple,
+  Shield,
+  TrendingUp,
+  Upload,
+  CreditCard,
   Home,
-  LayoutGrid,
   LogOut,
-  Search,
-  Settings,
   User,
+  Settings,
+  Search,
 } from 'lucide-react';
 import { AppLogo } from '@/components/app-logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -39,6 +42,7 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { useAuth } from '@/hooks/use-auth';
+import { Badge } from '@/components/ui/badge';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -51,11 +55,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     router.push('/login');
   };
 
+  // Check if user is on free tier
+  const isFreeUser = user?.subscriptionTier === 'free';
+  
+  // Check if trial is active
+  const isTrialActive = user?.subscriptionTier === 'pro' && !user?.trialUsed && user?.subscriptionExpiry && new Date(user.subscriptionExpiry) > new Date();
+
   const navItems = [
-    { href: '/', label: 'Feed', icon: LayoutGrid, _id: '1' },
-    { href: '/discover', label: 'Discover', icon: Search, _id: '2' },
-    { href: '/training', label: 'Training', icon: ClipboardList, _id: '3' },
-    { href: '/analytics', label: 'Analytics', icon: BarChart2, _id: '4' },
+    { href: '/dashboard', label: 'Dashboard', icon: Home, _id: '1' },
+    { href: '/training', label: 'Training', icon: Dumbbell, _id: '2' },
+    { href: '/nutrition', label: 'Nutrition', icon: Apple, _id: '3' },
+    { href: '/injury-prevention', label: 'Injury Prevention', icon: Shield, _id: '4' },
+    { href: '/league-stats', label: 'League Stats', icon: TrendingUp, _id: '5' },
+    { href: '/stats/upload', label: 'My Stats', icon: Upload, _id: '6' },
+    { href: '/analytics', label: 'Analytics', icon: BarChart2, _id: '7' },
+    { href: '/pricing', label: 'Subscription', icon: CreditCard, _id: '8' },
   ];
 
   return (
@@ -65,6 +79,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AppLogo />
         </SidebarHeader>
         <SidebarContent>
+          {/* Free User Upgrade Banner */}
+          {isFreeUser && (
+            <div className="mx-3 mb-4 rounded-lg border border-[#FFB81C] bg-[#FFB81C]/10 p-3">
+              <p className="mb-2 text-xs font-medium">Upgrade to Pro</p>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Unlock full training library
+              </p>
+              <Link href="/pricing">
+                <Button size="sm" className="w-full text-xs">
+                  Start 14-Day Trial
+                </Button>
+              </Link>
+            </div>
+          )}
+
+          {/* Trial Active Banner */}
+          {isTrialActive && (
+            <div className="mx-3 mb-4 rounded-lg border border-[#008751] bg-[#008751]/10 p-3">
+              <p className="text-xs font-medium text-[#008751]">
+                Pro Trial Active 🎉
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {Math.ceil((new Date(user.subscriptionExpiry!).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining
+              </p>
+            </div>
+          )}
+
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.href}>
@@ -90,6 +131,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <span className="truncate">{user.name}</span>
+                {user.subscriptionTier !== 'free' && (
+                  <Badge variant="secondary" className="ml-auto text-xs">
+                    {user.subscriptionTier.toUpperCase()}
+                  </Badge>
+                )}
               </SidebarMenuButton>
             </Link>
           </SidebarFooter>
@@ -102,7 +148,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search players or posts..."
+              placeholder="Search programs, stats, players..."
               className="w-full rounded-lg bg-card pl-8 md:w-[280px] lg:w-[320px]"
             />
           </div>
@@ -117,12 +163,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span>{user.name}</span>
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {user.email}
+                    </span>
+                    <Badge variant="outline" className="mt-1 w-fit text-xs">
+                      {user.subscriptionTier.toUpperCase()}
+                    </Badge>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href={`/profile/${user.username}`}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/pricing">
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    <span>Subscription</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>

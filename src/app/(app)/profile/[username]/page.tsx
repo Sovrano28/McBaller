@@ -3,12 +3,12 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { players } from '@/lib/mock-data';
+import { players as mockPlayers, Player } from '@/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Star } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -18,24 +18,31 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuth } from '@/hooks/use-auth';
+import { Calendar, MapPin, Footprints, Shield, Crown, Activity, Trophy, Sparkles } from 'lucide-react';
+
+function findPlayerByUsername(username: string): Player | null {
+  const storedUsers: Player[] = JSON.parse(localStorage.getItem('mcballer-users') || '[]');
+  const all: Player[] = [...mockPlayers, ...storedUsers];
+  return all.find(p => p.username === username) || null;
+}
 
 export default function ProfilePage({ params }: { params: { username: string } }) {
   const { user: loggedInUser } = useAuth();
-  const player = players.find((p) => p.username === params.username);
+  const player = findPlayerByUsername(params.username);
 
-  if (!player) {
-    notFound();
-  }
+  if (!player) return notFound();
 
   const isOwnProfile = loggedInUser?.username === player.username;
-
+  const currentSeason = player.leagueStats?.[0]?.season || '2024';
+  const seasonTotals = player.leagueStats?.find(s => s.season === currentSeason);
 
   return (
     <div className="space-y-6">
+      {/* Profile Header */}
       <Card className="overflow-hidden">
         <div className="relative h-48 w-full md:h-64">
           <Image
-            src="https://picsum.photos/seed/phero/1200/400"
+            src="https://picsum.photos/seed/profilehero/1200/400"
             alt={`${player.name} in action`}
             fill
             className="object-cover"
@@ -49,112 +56,196 @@ export default function ProfilePage({ params }: { params: { username: string } }
             <AvatarFallback>{player.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="mt-4 md:ml-6">
+            <div className="flex items-center gap-3">
             <h1 className="font-headline text-3xl font-bold md:text-4xl">{player.name}</h1>
-            <p className="text-muted-foreground">@{player.username}</p>
+              <Badge variant="secondary">@{player.username}</Badge>
+              {player.subscriptionTier !== 'free' && (
+                <Badge className="gap-1">
+                  {player.subscriptionTier.toUpperCase()}
+                  {player.subscriptionTier === 'elite' && <Crown className="ml-1 h-3 w-3" />}
+                </Badge>
+              )}
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1"><Shield className="h-4 w-4" /> {player.position}</span>
+              <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {player.currentClub}</span>
+              <span className="inline-flex items-center gap-1"><Footprints className="h-4 w-4" /> {player.preferredFoot || 'Right'} foot</span>
+              <span className="inline-flex items-center gap-1"><Calendar className="h-4 w-4" /> Joined {new Date(player.joinedAt).getFullYear()}</span>
+            </div>
           </div>
           <div className="mt-4 flex gap-2 md:ml-auto">
-            {!isOwnProfile && (
-               <>
-                <Button asChild>
-                  <Link href={loggedInUser ? '#' : '/signup'}>
-                    <UserPlus className="mr-2 h-4 w-4" /> Follow
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90">
-                  <Link href={loggedInUser ? '#' : '/signup'}>
-                    <Star className="mr-2 h-4 w-4" /> Sponsor
-                  </Link>
-                </Button>
+            {isOwnProfile ? (
+              <Button asChild variant="outline">
+                <Link href="/stats/upload">Update My Stats</Link>
+              </Button>
+            ) : (
+              <>
+                <Button>Follow</Button>
+                <Button variant="outline">Share</Button>
               </>
             )}
           </div>
         </div>
       </Card>
 
+      {/* Overview Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="media">Media</TabsTrigger>
           <TabsTrigger value="stats">Stats</TabsTrigger>
+          <TabsTrigger value="career">Career</TabsTrigger>
+          <TabsTrigger value="about">About</TabsTrigger>
         </TabsList>
+
+        {/* Overview */}
         <TabsContent value="overview" className="mt-6">
           <div className="grid gap-6 md:grid-cols-3">
-            <Card className="md:col-span-2">
-              <CardHeader>
-                <CardTitle className="font-headline">Bio</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{player.bio}</p>
-              </CardContent>
-            </Card>
+            {/* Quick Stats */}
             <Card>
               <CardHeader>
-                <CardTitle className="font-headline">Info</CardTitle>
+                <CardTitle className="font-headline">Quick Stats ({currentSeason})</CardTitle>
+                <CardDescription>Season snapshot</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                <p><strong>Position:</strong> {player.position}</p>
-                <p><strong>Club:</strong> {player.team}</p>
-                <p><strong>Height:</strong> {player.height} cm</p>
-                <p><strong>Weight:</strong> {player.weight} kg</p>
+              <CardContent className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="font-headline text-2xl font-bold text-[#008751]">{seasonTotals?.goals ?? 0}</div>
+                  <div className="text-xs text-muted-foreground">Goals</div>
+                </div>
+                <div>
+                  <div className="font-headline text-2xl font-bold text-[#0066CC]">{seasonTotals?.assists ?? 0}</div>
+                  <div className="text-xs text-muted-foreground">Assists</div>
+                </div>
+                <div>
+                  <div className="font-headline text-2xl font-bold text-[#FFB81C]">{seasonTotals?.appearances ?? 0}</div>
+                  <div className="text-xs text-muted-foreground">Apps</div>
+                </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
-        <TabsContent value="media" className="mt-6">
+
+            {/* Badges */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-headline">Badges</CardTitle>
+                <CardDescription>Milestones and achievements</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {(player.badges?.length ? player.badges : ['complete_profile']).map((b) => (
+                  <Badge key={b} variant="outline" className="gap-1">
+                    <Sparkles className="h-3 w-3" /> {b.replaceAll('_', ' ')}
+                  </Badge>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Subscription */}
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Media Gallery</CardTitle>
+                <CardTitle className="font-headline">Subscription</CardTitle>
+                <CardDescription>Your current plan</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="relative aspect-square overflow-hidden rounded-lg">
-                    <Image
-                      src={`https://picsum.photos/seed/gallery${i}/300/300`}
-                      alt={`Gallery image ${i + 1}`}
-                      fill
-                      className="object-cover transition-transform hover:scale-105"
-                      data-ai-hint="soccer player"
-                    />
+              <CardContent className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Badge className="gap-1">
+                    {player.subscriptionTier.toUpperCase()}
+                    {player.subscriptionTier === 'elite' && <Crown className="ml-1 h-3 w-3" />}
+                  </Badge>
+                  {player.subscriptionExpiry && (
+                    <span className="text-xs text-muted-foreground">Expires {new Date(player.subscriptionExpiry).toLocaleDateString()}</span>
+                  )}
                   </div>
-                ))}
-              </div>
+                {player.subscriptionTier === 'free' && (
+                  <Button asChild className="w-full">
+                    <Link href="/pricing">Upgrade to Pro</Link>
+                  </Button>
+                )}
             </CardContent>
           </Card>
+          </div>
         </TabsContent>
+
+        {/* Stats */}
         <TabsContent value="stats" className="mt-6">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Career Statistics</CardTitle>
+              <CardTitle className="font-headline">League Statistics</CardTitle>
+              <CardDescription>Verified and self-reported</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Season</TableHead>
                     <TableHead>Club</TableHead>
-                    <TableHead className="text-right">Goals</TableHead>
-                    <TableHead className="text-right">Assists</TableHead>
-                    <TableHead className="text-right">Tackles</TableHead>
+                      <TableHead className="text-center">Apps</TableHead>
+                      <TableHead className="text-center">Goals</TableHead>
+                      <TableHead className="text-center">Assists</TableHead>
+                      <TableHead className="text-center">Yellow</TableHead>
+                      <TableHead className="text-center">Red</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow>
-                    <TableCell>2023-2024</TableCell>
-                    <TableCell>{player.team}</TableCell>
-                    <TableCell className="text-right">{player.stats.goals}</TableCell>
-                    <TableCell className="text-right">{player.stats.assists}</TableCell>
-                    <TableCell className="text-right">{player.stats.tackles}</TableCell>
+                    {(player.leagueStats || []).map((row, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>{row.season}</TableCell>
+                        <TableCell>{row.club}</TableCell>
+                        <TableCell className="text-center">{row.appearances}</TableCell>
+                        <TableCell className="text-center font-semibold">{row.goals}</TableCell>
+                        <TableCell className="text-center font-semibold">{row.assists}</TableCell>
+                        <TableCell className="text-center">{row.yellowCards}</TableCell>
+                        <TableCell className="text-center">{row.redCards}</TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant={row.verified ? 'default' : 'secondary'}>
+                            {row.verified ? 'Verified' : 'Self-reported'}
+                          </Badge>
+                        </TableCell>
                   </TableRow>
-                  <TableRow>
-                    <TableCell>2022-2023</TableCell>
-                    <TableCell>Youth Academy</TableCell>
-                    <TableCell className="text-right">22</TableCell>
-                    <TableCell className="text-right">15</TableCell>
-                    <TableCell className="text-right">41</TableCell>
-                  </TableRow>
+                    ))}
                 </TableBody>
               </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Career */}
+        <TabsContent value="career" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Career Overview</CardTitle>
+              <CardDescription>Clubs and milestones</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Current Club</p>
+                <p className="text-lg font-semibold">{player.currentClub}</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Preferred Foot</p>
+                <p className="text-lg font-semibold">{player.preferredFoot || 'Right'}</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">State</p>
+                <p className="text-lg font-semibold">{player.state}</p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">Height / Weight</p>
+                <p className="text-lg font-semibold">{player.height || '-'} cm • {player.weight || '-'} kg</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* About */}
+        <TabsContent value="about" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">About</CardTitle>
+              <CardDescription>Bio and story</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">{player.bio}</p>
             </CardContent>
           </Card>
         </TabsContent>
