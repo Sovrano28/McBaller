@@ -11,6 +11,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 ## Core Features
 
 ### 1. Professional Training Programs
+
 - Position-specific training (Goalkeeper, Defender, Midfielder, Forward)
 - Programs designed for Nigerian climate and limited facilities
 - Technical skills, physical conditioning, tactical awareness
@@ -19,6 +20,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Free preview with subscription tiers for full access
 
 ### 2. Diet & Nutrition Plans
+
 - Meal plans using local Nigerian foods (Jollof rice, Eba, Egusi soup, Moi moi, etc.)
 - Pre-match and post-workout nutrition strategies
 - Hydration guidelines for hot climate
@@ -27,6 +29,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Ramadan fasting strategies for Muslim athletes
 
 ### 3. Injury Prevention Module
+
 - Common football injuries dashboard (Hamstring, ACL, Ankle, Groin)
 - Position-specific injury risk assessment
 - Dynamic warm-up routines with video guides
@@ -35,6 +38,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Red flag symptoms checker
 
 ### 4. Nigerian League Statistics Database
+
 - Browse NPFL player statistics (Goals, Assists, Appearances, Cards)
 - Filter by season, club, position
 - Search functionality
@@ -42,6 +46,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Player profile modals with career breakdowns
 
 ### 5. Personal Stats Upload & Tracking
+
 - Players can submit match statistics
 - Track season totals (Goals, Assists, Appearances, Cards)
 - Verification badge system (club-verified vs self-reported)
@@ -50,6 +55,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Performance analytics and trends
 
 ### 6. Player Profiles & Community
+
 - Professional player cards with stats
 - Training completion badges
 - Subscription tier badges
@@ -58,6 +64,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Feed for updates and achievements
 
 ### 7. Analytics Dashboard
+
 - Training completion percentage
 - Programs started vs completed
 - Goals/assists tracking charts
@@ -68,12 +75,14 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 
 ---
 
-## User Role: Players Only
+## User Roles
 
-**Previously**: Platform supported three roles (Players, Scouts, Fans)  
-**Now**: Focused exclusively on **Players** for professional development
+### Players
 
-### Player Features:
+Players are the core users who access training programs, nutrition plans, and track their performance.
+
+**Player Features:**
+
 - Create and manage professional profile
 - Access training programs based on subscription tier
 - View nutrition plans and meal prep guides
@@ -84,11 +93,35 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - View analytics and progress tracking
 - Manage subscription and billing
 
+### Organizations (Clubs/Teams/Agents)
+
+Organizations can manage their players, view performance data, handle contracts, and manage billing.
+
+**Organization Roles:**
+
+- **Org Admin**: Full access to org settings, billing, team management
+- **Coach/Staff**: View players, manage training assignments, view analytics
+- **Finance**: Manage invoices, payments, billing history
+- **Analyst**: Access to player statistics, performance data, reports
+
+**Organization Features:**
+
+- Create and manage organization/team profiles
+- Add and manage players (assign to teams)
+- View player profiles and performance data
+- Manage player contracts (terms, salary, duration)
+- Create and manage invoices for subscriptions
+- Track payment history and transactions
+- View team analytics and performance dashboards
+- Verify player stats (club-verified badge)
+- Export player data and reports
+
 ---
 
 ## Subscription Tiers
 
 ### Free Tier
+
 - Basic profile creation
 - Browse Nigerian league stats
 - Access to 3 training program previews
@@ -97,6 +130,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Community feed access
 
 ### Pro Tier - ₦5,000/month
+
 - **14-day free trial**
 - Full access to all training programs
 - Complete nutrition plans with recipes
@@ -106,6 +140,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Downloadable workout PDFs
 
 ### Elite Tier - ₦12,000/month
+
 - Everything in Pro, plus:
 - 1-on-1 coaching sessions (monthly)
 - Personalized training plan creation
@@ -119,15 +154,17 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 
 ## Technical Stack
 
-* **Frontend Framework**: Next.js 15+ (App Router)
-* **Styling**: Tailwind CSS with custom Nigerian theme
-* **Icons**: Lucide React
-* **UI Components**: shadcn/ui (Radix UI primitives)
-* **State Management**: React Context for auth; localStorage for persistence
-* **Form Handling**: React Hook Form with Zod validation
-* **Charts**: Recharts for analytics
-* **Storage**: localStorage (mock database for MVP)
-* **Routing**: Next.js App Router (file-system based)
+- **Frontend Framework**: Next.js 15+ (App Router)
+- **Styling**: Tailwind CSS with custom Nigerian theme
+- **Icons**: Lucide React
+- **UI Components**: shadcn/ui (Radix UI primitives)
+- **State Management**: React Context for auth; Server Components for data
+- **Form Handling**: React Hook Form with Zod validation
+- **Charts**: Recharts for analytics
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js v5 or custom session-based auth
+- **File Storage**: Local filesystem or cloud storage (S3/Cloudinary) for media
+- **Routing**: Next.js App Router (file-system based)
 
 ---
 
@@ -136,20 +173,24 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 ### Color Palette
 
 **Primary Colors:**
+
 - Nigerian Green: `#008751` - Main brand color, CTAs, headers
 - Background: `#F0FAF4` - Light green backdrop (light mode)
 - Dark Background: `#0A0A0A` - Main background (dark mode)
 
 **Accent Colors:**
+
 - Gold: `#FFB81C` - Achievements, highlights, nutrition
 - Blue: `#0066CC` - Links, secondary CTAs
 - Red: `#DC3545` - Injury prevention, alerts, warnings
 
 **Typography:**
+
 - Headline: `'Space Grotesk', sans-serif` - Bold, athletic feel
 - Body: `'Inter', sans-serif` - Clean, modern readability
 
 **Design Principles:**
+
 - Mobile-first responsive design
 - Nigerian flag elements (subtle green/white accents)
 - Football-themed imagery and patterns
@@ -161,6 +202,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 ## Data Structure
 
 ### Player Schema
+
 ```typescript
 {
   id: string;
@@ -169,12 +211,12 @@ McBaller is a comprehensive professional development platform exclusively for Ni
   email: string;
   phone: string; // +234...
   avatar: string;
-  
+
   // Basic Info
   dateOfBirth: Date;
   state: string; // Nigerian state
   currentLocation: string;
-  
+
   // Football Details
   position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward';
   currentClub: string;
@@ -182,14 +224,14 @@ McBaller is a comprehensive professional development platform exclusively for Ni
   preferredFoot?: 'Left' | 'Right' | 'Both';
   height?: number; // cm
   weight?: number; // kg
-  
+
   // Stats
   stats: {
     goals: number;
     assists: number;
     tackles: number;
   };
-  
+
   // League Stats (uploaded by player)
   leagueStats: {
     season: string;
@@ -201,7 +243,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
     redCards: number;
     verified: boolean; // club-verified or self-reported
   }[];
-  
+
   // Profile
   bio: string;
   socialMedia?: {
@@ -209,12 +251,12 @@ McBaller is a comprehensive professional development platform exclusively for Ni
     twitter?: string;
     facebook?: string;
   };
-  
+
   // Subscription
   subscriptionTier: 'free' | 'pro' | 'elite';
   subscriptionExpiry?: Date;
   trialUsed: boolean;
-  
+
   // Progress
   trainingCompleted: string[]; // program IDs
   badges: string[];
@@ -223,6 +265,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 ```
 
 ### Training Program Schema
+
 ```typescript
 {
   id: string;
@@ -250,6 +293,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 ```
 
 ### Nutrition Plan Schema
+
 ```typescript
 {
   id: string;
@@ -275,12 +319,20 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 
 ## Routing Structure
 
+### Public Routes
+
 ```
 / - Public landing page
-/login - Login page
-/signup - Signup page (players only)
+/login - Login page (players and organizations)
+/signup - Signup page (role selection: Player or Organization)
+/signup/player - Player signup form
+/signup/organization - Organization signup form
+```
 
-/dashboard - Main feed (authenticated)
+### Player Routes (Authenticated)
+
+```
+/dashboard - Main feed (authenticated players)
 /training - Training programs listing
 /training/[id] - Individual program details
 /nutrition - Nutrition plans
@@ -292,11 +344,30 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 /profile/[username] - Player profile page
 ```
 
+### Organization Routes (Authenticated)
+
+```
+/org/dashboard - Organization dashboard with KPIs
+/org/players - Manage players list
+/org/players/[id] - Player profile (org view with contracts, invoices)
+/org/players/[id]/edit - Edit player data
+/org/teams - Manage teams under organization
+/org/teams/[id] - Team details and roster
+/org/billing/invoices - Invoice list and management
+/org/billing/invoices/[id] - Invoice details
+/org/billing/payments - Payment history
+/org/contracts - Manage player contracts
+/org/contracts/[id] - Contract details
+/org/settings - Organization settings and ERP connection status
+/org/analytics - Team performance analytics
+```
+
 ---
 
 ## Nigerian-Specific Customizations
 
 ### Localization
+
 - All 36 Nigerian states + FCT in dropdowns
 - Major NPFL clubs: Enyimba FC, Rangers International, Kano Pillars, Rivers United, Plateau United, Lobi Stars, etc.
 - Phone numbers with +234 country code
@@ -304,6 +375,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Time zone: West Africa Time (WAT)
 
 ### Cultural Considerations
+
 - Inclusive design (male & female players)
 - Ramadan fasting nutrition strategies
 - Training for hot climate (30-40°C)
@@ -312,16 +384,20 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Community and teamwork values
 - Education alongside football emphasis
 
-### Payment Integration (Mock for MVP)
+### Payment Integration (Future Implementation)
+
+- Paystack payment gateway integration
 - Bank transfer instructions
-- Paystack payment gateway
 - Mobile money options (Paga, OPay)
+- Invoice generation and management
+- Payment history tracking
 
 ---
 
 ## Nigerian Clubs Database
 
 **NPFL Clubs (2024/2025 Season):**
+
 1. Enyimba FC (Aba, Abia State)
 2. Rangers International FC (Enugu, Enugu State)
 3. Kano Pillars FC (Kano, Kano State)
@@ -343,36 +419,42 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 ## Feature Implementation Priority
 
 ### Phase 1: Foundation (Week 1) ✅
+
 - [x] Public landing page with services showcase
 - [x] Updated blueprint and data model
 - [ ] Players-only authentication system
 - [ ] Nigerian states and clubs integration
 
 ### Phase 2: Training & Navigation (Week 2)
+
 - [ ] Training programs section with filtering
 - [ ] Individual program detail pages
 - [ ] Updated navigation with new structure
 - [ ] Subscription tier access control
 
 ### Phase 3: Nutrition & Injury Prevention (Week 3)
+
 - [ ] Nutrition plans with Nigerian foods
 - [ ] Injury prevention module
 - [ ] Exercise video placeholders
 - [ ] Warm-up routine guides
 
 ### Phase 4: League Stats (Week 4)
+
 - [ ] Nigerian league stats browser
 - [ ] Stats upload system for players
 - [ ] Verification badge system
 - [ ] Season leaderboards
 
 ### Phase 5: Subscriptions & Profiles (Week 5)
+
 - [ ] Pricing page with tiers
 - [ ] Enhanced player profiles
 - [ ] Training completion badges
 - [ ] Subscription management
 
 ### Phase 6: Content & Polish (Week 6)
+
 - [ ] 20+ training programs with Nigerian context
 - [ ] Enhanced analytics dashboard
 - [ ] Nigerian theme refinements
@@ -383,6 +465,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 ## Success Metrics
 
 ### Player Engagement
+
 - Profile completion rate
 - Training program starts/completions
 - Stats upload frequency
@@ -390,6 +473,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Session duration
 
 ### Business Metrics
+
 - Free to Pro conversion rate
 - Pro to Elite upgrade rate
 - Trial completion rate
@@ -397,6 +481,7 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 - Churn rate
 
 ### Content Metrics
+
 - Most popular training programs
 - Most accessed nutrition plans
 - Injury prevention module usage
@@ -404,36 +489,66 @@ McBaller is a comprehensive professional development platform exclusively for Ni
 
 ---
 
+## Database Schema
+
+### Core Tables
+
+- **Organizations**: id, name, slug, type (club/team/agent), email, phone, address, logo, settings
+- **Teams**: id, organizationId, name, slug, logo, description
+- **Users**: id, email, password (hashed), role (player/org_admin/coach/finance/analyst), organizationId (nullable)
+- **Players**: id, userId, name, username, position, stats, subscriptionTier, etc.
+- **Contracts**: id, playerId, organizationId, teamId, startDate, endDate, salary, terms, status
+- **Invoices**: id, organizationId, playerId, amount, currency, status, dueDate, createdAt
+- **Payments**: id, invoiceId, amount, method, status, transactionId, paidAt
+- **Transactions**: id, paymentId, type (payment/refund), amount, status, metadata
+
+### Relationships
+
+- Organization → has many Teams
+- Organization → has many Users (org members)
+- Team → belongs to Organization
+- Team → has many Players (via Contracts)
+- Player → belongs to User
+- Player → has many Contracts
+- Player → has many Invoices
+- Contract → belongs to Player, Organization, Team
+- Invoice → belongs to Organization, Player
+- Payment → belongs to Invoice
+- Transaction → belongs to Payment
+
 ## Future Enhancements (Post-MVP)
 
 1. **Mobile Apps**: Native iOS and Android applications
 2. **Coach Portal**: Coaches can create and publish programs
-3. **Team Features**: Club/team management tools
-4. **Live Classes**: Virtual training sessions
-5. **Marketplace**: Equipment and merchandise shop
-6. **Scouting**: Limited scout access for talent discovery
-7. **Certifications**: Digital certificates for completed programs
-8. **Competitions**: In-app challenges and leaderboards
-9. **Video Analysis**: Upload and analyze match footage
-10. **AI Recommendations**: Machine learning-powered training suggestions
+3. **Live Classes**: Virtual training sessions
+4. **Marketplace**: Equipment and merchandise shop
+5. **Scouting**: Limited scout access for talent discovery
+6. **Certifications**: Digital certificates for completed programs
+7. **Competitions**: In-app challenges and leaderboards
+8. **Video Analysis**: Upload and analyze match footage
+9. **AI Recommendations**: Machine learning-powered training suggestions
+10. **Paystack Integration**: Complete payment processing for invoices
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
+
 ```bash
 Node.js 18+
 npm or yarn
 ```
 
 ### Installation
+
 ```bash
 npm install
 npm run dev
 ```
 
 ### Development
+
 - Development server: http://localhost:9002
 - Dark mode by default
 - Hot reload enabled
