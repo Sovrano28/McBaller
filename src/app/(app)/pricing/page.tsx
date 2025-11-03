@@ -267,7 +267,7 @@ export default function PricingPage() {
           Ready to Elevate Your Game?
         </h2>
         <p className="mb-6 text-lg text-white/90">
-          Join thousands of Nigerian footballers already improving with McBaller
+          Join thousands of Nigerian footballers already improving with McSportng
         </p>
         <Button size="lg" variant="secondary">
           Start Your 14-Day Free Trial

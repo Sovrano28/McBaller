@@ -1,0 +1,29 @@
+export type UserRole = "player" | "org_admin" | "coach" | "finance" | "analyst";
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  organizationId: string | null;
+  playerId?: string;
+  name?: string;
+}
+
+export interface PlayerAuthData extends AuthUser {
+  role: "player";
+  playerId: string;
+  name: string;
+  username: string;
+  avatar?: string;
+  subscriptionTier?: string; // "free" | "pro" | "elite"
+  subscriptionExpiry?: string;
+  trialUsed?: boolean;
+}
+
+export interface OrgAuthData extends AuthUser {
+  role: "org_admin" | "coach" | "finance" | "analyst";
+  organizationId: string;
+  organizationName?: string;
+}
+
+export type AuthSession = PlayerAuthData | OrgAuthData;

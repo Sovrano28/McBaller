@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/use-auth";
 
 export const metadata: Metadata = {
-  title: "McBaller - Professional Development for Nigerian Footballers",
+  title: "McSportng - Professional Development for Nigerian Footballers",
   description: "Elevate your football career with professional training programs, nutrition plans, and injury prevention strategies designed for Nigerian players.",
   icons: {
     icon: "/logo.png",

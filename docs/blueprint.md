@@ -1,10 +1,10 @@
-# **App Name**: McBaller
+# **App Name**: McSportng
 
 **Tagline**: Professional Development Platform for Nigerian Footballers
 
 ## Vision
 
-McBaller is a comprehensive professional development platform exclusively for Nigerian football players. The platform provides expert training programs, personalized nutrition plans using local foods, and injury prevention strategies, while also showcasing Nigerian Professional Football League (NPFL) statistics and allowing players to track and upload their own performance data.
+McSportng is a comprehensive professional development platform exclusively for Nigerian football players. The platform provides expert training programs, personalized nutrition plans using local foods, and injury prevention strategies, while also showcasing Nigerian Professional Football League (NPFL) statistics and allowing players to track and upload their own performance data.
 
 ---
 
@@ -569,7 +569,7 @@ npm run dev
 
 ## Contact & Support
 
-- **Email**: support@mcballer.ng
+- **Email**: support@mcsportng.ng
 - **Phone**: +234 XXX XXXX XXX
 - **Address**: Lagos, Nigeria
 

@@ -1,118 +1,142 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/hooks/use-auth';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import type { Player } from '@/lib/mock-data';
-import { nigerianStates, npflClubs } from '@/lib/mock-data';
-import React, { useState } from 'react';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { nigerianStates } from "@/lib/mock-data";
+import { signupPlayer } from "@/lib/actions/auth";
+import React, { useState } from "react";
 
 export default function SignupPage() {
-  const { login } = useAuth();
+  const { login, refresh } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [position, setPosition] = useState<'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward'>('Forward');
-  const [state, setState] = useState('');
-  const [currentClub, setCurrentClub] = useState('');
-  const [preferredFoot, setPreferredFoot] = useState<'Left' | 'Right' | 'Both'>('Right');
+  const [position, setPosition] = useState<
+    "Goalkeeper" | "Defender" | "Midfielder" | "Forward"
+  >("Forward");
+  const [state, setState] = useState("");
+  const [preferredFoot, setPreferredFoot] = useState<"Left" | "Right" | "Both">(
+    "Right"
+  );
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+
     const formData = new FormData(event.currentTarget);
-    const fullName = formData.get('full-name') as string;
-    const email = formData.get('email') as string;
-    const phone = formData.get('phone') as string;
-    const dateOfBirth = formData.get('date-of-birth') as string;
-    const password = formData.get('password') as string;
-    const height = formData.get('height') as string;
-    const weight = formData.get('weight') as string;
+    const fullName = formData.get("full-name") as string;
+    const email = formData.get("email") as string;
+    const phone = formData.get("phone") as string;
+    const dateOfBirth = formData.get("date-of-birth") as string;
+    const password = formData.get("password") as string;
+    const height = formData.get("height") as string;
+    const weight = formData.get("weight") as string;
 
     if (!acceptedTerms) {
       toast({
-        variant: 'destructive',
-        title: 'Terms Required',
-        description: 'You must accept the terms and conditions to continue.',
+        variant: "destructive",
+        title: "Terms Required",
+        description: "You must accept the terms and conditions to continue.",
       });
+      setIsLoading(false);
       return;
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (!passwordRegex.test(password)) {
       toast({
-        variant: 'destructive',
-        title: 'Weak Password',
+        variant: "destructive",
+        title: "Weak Password",
         description:
-          'Password must be at least 8 characters long and include uppercase and lowercase letters, a number, and a symbol.',
+          "Password must be at least 8 characters long and include uppercase and lowercase letters, a number, and a symbol.",
       });
+      setIsLoading(false);
       return;
     }
 
-    // Calculate trial expiry (14 days from now)
-    const trialExpiry = new Date();
-    trialExpiry.setDate(trialExpiry.getDate() + 14);
-    
-    const newUser: Player = {
-      id: Date.now().toString(),
-      name: fullName,
-      username: fullName.toLowerCase().replace(/\s/g, '_'),
-      email: email,
-      phone: phone,
-      avatar: `https://picsum.photos/seed/${fullName.split(' ')[0]}/100/100`,
-      dateOfBirth: dateOfBirth,
-      state: state,
-      currentLocation: state,
-      position: position,
-      currentClub: currentClub || 'Currently Clubless',
-      preferredFoot: preferredFoot,
-      height: height ? parseInt(height) : undefined,
-      weight: weight ? parseInt(weight) : undefined,
-      stats: { goals: 0, assists: 0, tackles: 0 },
-      leagueStats: [],
-      bio: `Passionate Nigerian footballer from ${state}. Ready to take my game to the next level!`,
-      subscriptionTier: 'pro', // Start with Pro trial
-      subscriptionExpiry: trialExpiry.toISOString(),
-      trialUsed: false,
-      trainingCompleted: [],
-      badges: [],
-      joinedAt: new Date().toISOString(),
-    };
-    
-    // Save user to a separate list in local storage
-    const users = JSON.parse(localStorage.getItem('mcballer-users') || '[]');
-    users.push(newUser);
-    localStorage.setItem('mcballer-users', JSON.stringify(users));
+    // Generate username from full name
+    const username = fullName
+      .toLowerCase()
+      .replace(/\s+/g, "_")
+      .replace(/[^a-z0-9_]/g, "");
 
-    login(newUser);
-    router.push('/dashboard');
-    toast({
-      title: 'Welcome to McBaller!',
-      description: `Your 14-day Pro trial has started. Let's elevate your game, ${newUser.name}!`,
-    });
+    try {
+      const result = await signupPlayer({
+        name: fullName,
+        email,
+        password,
+        phone,
+        username,
+        position,
+        dateOfBirth: dateOfBirth || undefined,
+        state: state || undefined,
+        currentLocation: state || undefined,
+        preferredFoot: preferredFoot || undefined,
+        height: height ? parseInt(height) : undefined,
+        weight: weight ? parseInt(weight) : undefined,
+      });
+
+      if (result.success && result.user) {
+        login(result.user);
+        await refresh();
+        router.push("/dashboard");
+        toast({
+          title: "Welcome to McSportng!",
+          description: `Your 14-day Pro trial has started. Let's elevate your game, ${result.user.name}!`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Signup Failed",
+          description: result.error || "An error occurred during signup",
+        });
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: "An error occurred. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Start Your Free Trial</CardTitle>
+        <CardTitle className="font-headline text-2xl">
+          Start Your Free Trial
+        </CardTitle>
         <CardDescription>
-          Join Nigeria's premier football development platform. 14-day Pro trial included!
+          Join Nigeria's premier football development platform. 14-day Pro trial
+          included!
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -121,11 +145,21 @@ export default function SignupPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="full-name">Full Name *</Label>
-              <Input id="full-name" name="full-name" placeholder="Chukwuemeka Okonkwo" required />
+              <Input
+                id="full-name"
+                name="full-name"
+                placeholder="Chukwuemeka Okonkwo"
+                required
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="date-of-birth">Date of Birth *</Label>
-              <Input id="date-of-birth" name="date-of-birth" type="date" required />
+              <Input
+                id="date-of-birth"
+                name="date-of-birth"
+                type="date"
+                required
+              />
             </div>
           </div>
 
@@ -159,7 +193,7 @@ export default function SignupPage() {
               <Input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="Min. 8 characters"
                 required
               />
@@ -174,9 +208,13 @@ export default function SignupPage() {
                 onTouchStart={() => setShowPassword(true)}
                 onTouchEnd={() => setShowPassword(false)}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
                 <span className="sr-only">
-                  {showPassword ? 'Hide password' : 'Show password'}
+                  {showPassword ? "Hide password" : "Show password"}
                 </span>
               </Button>
             </div>
@@ -194,7 +232,7 @@ export default function SignupPage() {
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
-                  {nigerianStates.map((stateName) => (
+                  {nigerianStates.map(stateName => (
                     <SelectItem key={stateName} value={stateName}>
                       {stateName}
                     </SelectItem>
@@ -204,7 +242,11 @@ export default function SignupPage() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="position">Playing Position *</Label>
-              <Select value={position} onValueChange={(value: any) => setPosition(value)} required>
+              <Select
+                value={position}
+                onValueChange={(value: any) => setPosition(value)}
+                required
+              >
                 <SelectTrigger id="position">
                   <SelectValue placeholder="Select position" />
                 </SelectTrigger>
@@ -218,36 +260,21 @@ export default function SignupPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="current-club">Current Club</Label>
-              <Select value={currentClub} onValueChange={setCurrentClub}>
-                <SelectTrigger id="current-club">
-                  <SelectValue placeholder="Select club or leave empty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Currently Clubless">Currently Clubless</SelectItem>
-                  {npflClubs.map((club) => (
-                    <SelectItem key={club} value={club}>
-                      {club}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="preferred-foot">Preferred Foot</Label>
-              <Select value={preferredFoot} onValueChange={(value: any) => setPreferredFoot(value)}>
-                <SelectTrigger id="preferred-foot">
-                  <SelectValue placeholder="Select foot" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Right">Right</SelectItem>
-                  <SelectItem value="Left">Left</SelectItem>
-                  <SelectItem value="Both">Both</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid gap-2">
+            <Label htmlFor="preferred-foot">Preferred Foot</Label>
+            <Select
+              value={preferredFoot}
+              onValueChange={(value: any) => setPreferredFoot(value)}
+            >
+              <SelectTrigger id="preferred-foot">
+                <SelectValue placeholder="Select foot" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Right">Right</SelectItem>
+                <SelectItem value="Left">Left</SelectItem>
+                <SelectItem value="Both">Both</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Optional Physical Attributes */}
@@ -278,28 +305,33 @@ export default function SignupPage() {
 
           {/* Terms and Conditions */}
           <div className="flex items-start space-x-2">
-            <Checkbox 
-              id="terms" 
+            <Checkbox
+              id="terms"
               checked={acceptedTerms}
-              onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+              onCheckedChange={checked => setAcceptedTerms(checked as boolean)}
             />
             <label
               htmlFor="terms"
               className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              I agree to the{' '}
+              I agree to the{" "}
               <Link href="/terms" className="text-[#008751] underline">
                 Terms of Service
-              </Link>{' '}
-              and{' '}
+              </Link>{" "}
+              and{" "}
               <Link href="/privacy" className="text-[#008751] underline">
                 Privacy Policy
               </Link>
             </label>
           </div>
 
-          <Button type="submit" className="w-full" size="lg">
-            Start 14-Day Free Trial
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            disabled={isLoading}
+          >
+            {isLoading ? "Creating account..." : "Start 14-Day Free Trial"}
           </Button>
 
           <div className="text-center text-sm text-muted-foreground">
@@ -307,7 +339,7 @@ export default function SignupPage() {
           </div>
         </form>
         <div className="mt-4 text-center text-sm">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link href="/login" className="text-[#008751] underline">
             Log in
           </Link>

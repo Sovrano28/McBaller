@@ -694,7 +694,7 @@ export const posts: Post[] = [
     id: "2",
     player: players[1],
     content:
-      "Morning training session done! Working on my passing accuracy with Coach Usman. The heat is intense but we push through! 💪🔥 #McBallerTraining",
+      "Morning training session done! Working on my passing accuracy with Coach Usman. The heat is intense but we push through! 💪🔥 #McSportngTraining",
     likes: 218,
     comments: 15,
     createdAt: "5h ago",
@@ -726,7 +726,7 @@ export const posts: Post[] = [
     id: "5",
     player: players[5],
     content:
-      'Just completed the "Midfield Maestro" training program on McBaller! My passing stats have improved significantly. Highly recommend! 📊💯',
+      'Just completed the "Midfield Maestro" training program on McSportng! My passing stats have improved significantly. Highly recommend! 📊💯',
     likes: 428,
     comments: 31,
     createdAt: "3d ago",

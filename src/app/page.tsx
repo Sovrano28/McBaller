@@ -297,7 +297,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 font-headline text-3xl font-bold md:text-4xl">
-              Players Love McBaller
+              Players Love McSportng
             </h2>
             <p className="text-lg text-muted-foreground">
               Real stories from Nigerian footballers
@@ -412,7 +412,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} McBaller. All rights reserved.
+            © {new Date().getFullYear()} McSportng. All rights reserved.
           </div>
         </div>
       </footer>

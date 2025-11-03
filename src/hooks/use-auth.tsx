@@ -1,47 +1,68 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { Player } from '@/lib/mock-data';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import type { AuthSession } from "@/lib/auth-types";
+import { logout as serverLogout } from "@/lib/actions/auth";
 
 interface AuthContextType {
-  user: Player | null;
-  login: (user: Player) => void;
-  logout: () => void;
+  user: AuthSession | null;
+  login: (user: AuthSession) => void;
+  logout: () => Promise<void>;
   loading: boolean;
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<Player | null>(null);
+  const [user, setUser] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchSession = async () => {
     try {
-      const storedUser = localStorage.getItem('mcballer-user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
+      const response = await fetch("/api/auth/session");
+      const data = await response.json();
+      setUser(data.session);
     } catch (error) {
-      console.error('Failed to parse user from localStorage', error);
-      localStorage.removeItem('mcballer-user');
+      console.error("Failed to fetch session", error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  const login = (user: Player) => {
-    localStorage.setItem('mcballer-user', JSON.stringify(user));
-    setUser(user);
   };
 
-  const logout = () => {
-    localStorage.removeItem('mcballer-user');
-    setUser(null);
+  useEffect(() => {
+    fetchSession();
+  }, []);
+
+  const login = (user: AuthSession) => {
+    setUser(user);
+    // Refresh to sync with server
+    fetchSession();
+  };
+
+  const logout = async () => {
+    try {
+      await serverLogout();
+      setUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+      setUser(null);
+    }
+  };
+
+  const refresh = async () => {
+    await fetchSession();
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, refresh }}>
       {!loading && children}
     </AuthContext.Provider>
   );
@@ -50,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

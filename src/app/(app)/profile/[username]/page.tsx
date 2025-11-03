@@ -21,7 +21,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Calendar, MapPin, Footprints, Shield, Crown, Activity, Trophy, Sparkles } from 'lucide-react';
 
 function findPlayerByUsername(username: string): Player | null {
-  const storedUsers: Player[] = JSON.parse(localStorage.getItem('mcballer-users') || '[]');
+  const storedUsers: Player[] = JSON.parse(localStorage.getItem('mcsportng-users') || '[]');
   const all: Player[] = [...mockPlayers, ...storedUsers];
   return all.find(p => p.username === username) || null;
 }

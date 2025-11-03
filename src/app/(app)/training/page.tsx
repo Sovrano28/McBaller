@@ -40,12 +40,12 @@ export default function TrainingPage() {
 
   const canAccess = (requiredTier: string) => {
     if (!user) return false;
+    const subscriptionTier =
+      "subscriptionTier" in user ? user.subscriptionTier || "free" : "free";
     if (requiredTier === "free") return true;
     if (requiredTier === "pro")
-      return (
-        user.subscriptionTier === "pro" || user.subscriptionTier === "elite"
-      );
-    if (requiredTier === "elite") return user.subscriptionTier === "elite";
+      return subscriptionTier === "pro" || subscriptionTier === "elite";
+    if (requiredTier === "elite") return subscriptionTier === "elite";
     return false;
   };
 

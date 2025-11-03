@@ -1,54 +1,84 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/hooks/use-auth';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import React, { useState } from 'react';
-import type { Player } from '@/lib/mock-data';
-import { players } from '@/lib/mock-data';
-import { Eye, EyeOff } from 'lucide-react';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { login as serverLogin } from "@/lib/actions/auth";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, refresh } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsLoading(true);
+
     const formData = new FormData(event.currentTarget);
-    const email = formData.get('email') as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-    // Combine mock players with any users from local storage
-    const storedUsers = JSON.parse(localStorage.getItem('mcballer-users') || '[]');
-    const allUsers: Player[] = [...players, ...storedUsers];
-
-    const user = allUsers.find(p => p.email.toLowerCase() === email.toLowerCase());
-
-    if (user) {
-      login(user);
-      router.push('/dashboard');
+    if (!email || !password) {
       toast({
-        title: 'Welcome Back!',
-        description: `Good to see you, ${user.name}!`,
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please enter both email and password.",
       });
-    } else {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const result = await serverLogin(email, password);
+
+      if (result.success && result.user) {
+        login(result.user);
+        await refresh();
+
+        // Redirect based on role
+        if (result.user.role === "player") {
+          router.push("/dashboard");
+        } else {
+          router.push("/org/dashboard");
+        }
+
+        toast({
+          title: "Welcome Back!",
+          description: `Good to see you, ${
+            result.user.name || result.user.email
+          }!`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: result.error || "Invalid email or password",
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
       toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: 'No account found with that email. Please sign up first.',
+        variant: "destructive",
+        title: "Login Failed",
+        description: "An error occurred. Please try again.",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,9 +116,9 @@ export default function LoginPage() {
               <Input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
-                defaultValue="password"
+                placeholder="Enter your password"
               />
               <Button
                 type="button"
@@ -101,23 +131,39 @@ export default function LoginPage() {
                 onTouchStart={() => setShowPassword(true)}
                 onTouchEnd={() => setShowPassword(false)}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
                 <span className="sr-only">
-                  {showPassword ? 'Hide password' : 'Show password'}
+                  {showPassword ? "Hide password" : "Show password"}
                 </span>
               </Button>
             </div>
           </div>
-          <Button type="submit" className="w-full">
-            Log In
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Log In"}
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-2">
           <p className="text-sm text-muted-foreground">
-            New here?{' '}
-            <Link href="/signup" className="font-semibold text-[#008751] underline">
+            New here?{" "}
+            <Link
+              href="/signup"
+              className="font-semibold text-[#008751] underline"
+            >
               Start your 14-day free trial
+            </Link>
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Representing an organization?{" "}
+            <Link
+              href="/signup/organization"
+              className="font-semibold text-[#008751] underline"
+            >
+              Register your organization
             </Link>
           </p>
         </div>
@@ -158,7 +204,7 @@ export default function LoginPage() {
             </Button>
             <Button variant="outline" type="button" disabled>
               <svg className="mr-2 h-4 w-4" fill="#1877F2" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
               Facebook
             </Button>
