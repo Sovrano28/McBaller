@@ -116,6 +116,34 @@ Organizations can manage their players, view performance data, handle contracts,
 - Verify player stats (club-verified badge)
 - Export player data and reports
 
+**Enhanced Organization Features:**
+
+1. **Core Team/Club Management**
+
+   - Team/Club/League Structure: Multiple teams, divisions, age-groups, seasons
+   - Availability / RSVP Tracking: Players/parents mark availability for events; coaches see who's in/out
+
+2. **Communication & Collaboration**
+
+   - Announcements / Alerts: Important updates (venue change, postponement) with push or email
+   - Assignments / Volunteer Tasks: Allocate tasks (e.g., snacks, setup, equipment) and track completion
+   - Media & File Sharing: Upload photos, videos, documents (e.g., training drills, forms) for team/club
+
+3. **Event / Competition / Season Management**
+
+   - Season/Program Setup: Define seasons, programs, age-groups, divisions, teams
+   - Schedule Generator & Fixture Creation: Automatic scheduling of league fixtures, tournaments
+   - Tournament/Bracket Management: Organize tournaments, manage pools/groups, bracket advancement
+   - Venue/Facility Booking & Management: Link venues, book slots, manage conflicts
+   - Attendance Tracking & Check-in: Track who attended which event, possibly health checks
+
+4. **Compliance, Safety & Administration**
+   - Waivers & Digital Agreements: Electronic signing of waivers, consent forms
+   - Background Checks / Health Checks: For coaches/volunteers/players
+   - Document Management & File Storage: Keep medical forms, insurance docs, participant data
+   - Privacy & Role-based Access Controls: Ensure personal data is only visible to authorized roles
+   - Audit / Export / Compliance Reports: For governing bodies, insurance, grants
+
 ---
 
 ## Subscription Tiers
@@ -353,11 +381,31 @@ Organizations can manage their players, view performance data, handle contracts,
 /org/players/[id]/edit - Edit player data
 /org/teams - Manage teams under organization
 /org/teams/[id] - Team details and roster
+/org/teams/[id]/structure - Team structure (divisions, age-groups, seasons)
 /org/billing/invoices - Invoice list and management
 /org/billing/invoices/[id] - Invoice details
 /org/billing/payments - Payment history
 /org/contracts - Manage player contracts
 /org/contracts/[id] - Contract details
+/org/calendar - Events calendar
+/org/calendar/[id] - Event details with availability/RSVP
+/org/calendar/[id]/attendance - Attendance tracking and check-in
+/org/announcements - Announcements and alerts
+/org/announcements/[id] - Announcement details
+/org/assignments - Volunteer tasks and assignments
+/org/assignments/[id] - Assignment details
+/org/media - Media and file sharing
+/org/seasons - Season and program management
+/org/seasons/[id] - Season details
+/org/tournaments - Tournament management
+/org/tournaments/[id] - Tournament details with brackets
+/org/venues - Venue and facility management
+/org/venues/[id] - Venue details and bookings
+/org/compliance/waivers - Waivers and digital agreements
+/org/compliance/waivers/[id] - Waiver details and signatures
+/org/compliance/background-checks - Background checks management
+/org/compliance/documents - Document management
+/org/compliance/audit - Audit logs and compliance reports
 /org/settings - Organization settings and ERP connection status
 /org/analytics - Team performance analytics
 ```

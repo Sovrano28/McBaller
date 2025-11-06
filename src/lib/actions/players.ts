@@ -138,3 +138,39 @@ export async function createOrganizationPlayer(
     };
   }
 }
+
+export async function getPlayerByUsername(username: string) {
+  try {
+    const player = await prisma.player.findUnique({
+      where: { username },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+        team: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        leagueStats: {
+          orderBy: {
+            season: "desc",
+          },
+        },
+      },
+    });
+
+    if (!player) {
+      return null;
+    }
+
+    return player;
+  } catch (error: any) {
+    console.error("Get player by username error:", error);
+    return null;
+  }
+}

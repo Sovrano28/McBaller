@@ -28,8 +28,9 @@ import { format } from "date-fns";
 export default async function OrgPlayerDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await getSession();
 
   if (!session || session.role === "player") {
@@ -43,7 +44,7 @@ export default async function OrgPlayerDetailPage({
 
   let player;
   try {
-    player = await getOrganizationPlayer(orgSession.organizationId, params.id);
+    player = await getOrganizationPlayer(orgSession.organizationId, id);
   } catch (error) {
     notFound();
   }

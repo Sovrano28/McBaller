@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { players as mockPlayers, Player } from '@/lib/mock-data';
+import { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -20,15 +20,55 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { Calendar, MapPin, Footprints, Shield, Crown, Activity, Trophy, Sparkles } from 'lucide-react';
 
-function findPlayerByUsername(username: string): Player | null {
-  const storedUsers: Player[] = JSON.parse(localStorage.getItem('mcsportng-users') || '[]');
-  const all: Player[] = [...mockPlayers, ...storedUsers];
-  return all.find(p => p.username === username) || null;
-}
-
 export default function ProfilePage({ params }: { params: { username: string } }) {
   const { user: loggedInUser } = useAuth();
-  const player = findPlayerByUsername(params.username);
+  const [player, setPlayer] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPlayer() {
+      try {
+        const response = await fetch(`/api/players/${params.username}`);
+        if (response.ok) {
+          const data = await response.json();
+          setPlayer(data);
+        } else {
+          // Try mock data fallback
+          const { players: mockPlayers } = await import('@/lib/mock-data');
+          const storedUsers: any[] = JSON.parse(localStorage.getItem('mcsportng-users') || '[]');
+          const all = [...mockPlayers, ...storedUsers];
+          const found = all.find(p => p.username === params.username);
+          if (found) {
+            setPlayer(found);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch player:', error);
+        // Try mock data fallback
+        const { players: mockPlayers } = await import('@/lib/mock-data');
+        const storedUsers: any[] = JSON.parse(localStorage.getItem('mcsportng-users') || '[]');
+        const all = [...mockPlayers, ...storedUsers];
+        const found = all.find(p => p.username === params.username);
+        if (found) {
+          setPlayer(found);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchPlayer();
+  }, [params.username]);
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center p-12">
+          <div className="text-muted-foreground">Loading profile...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!player) return notFound();
 

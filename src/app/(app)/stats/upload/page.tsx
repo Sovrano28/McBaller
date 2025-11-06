@@ -61,7 +61,7 @@ export default function StatsUploadPage() {
   }
 
   // Calculate season totals (mock data from user's leagueStats)
-  const currentSeasonStats = user.leagueStats.find(stat => stat.season === '2024');
+  const currentSeasonStats = (user as any).leagueStats?.find((stat: any) => stat.season === '2024');
   const totalGoals = currentSeasonStats?.goals || 0;
   const totalAssists = currentSeasonStats?.assists || 0;
   const totalAppearances = currentSeasonStats?.appearances || 0;

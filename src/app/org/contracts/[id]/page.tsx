@@ -20,8 +20,9 @@ import ContractActions from "./contract-actions";
 export default async function ContractDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await getSession();
 
   if (!session || session.role === "player") {
@@ -35,7 +36,7 @@ export default async function ContractDetailPage({
 
   let contract;
   try {
-    contract = await getContract(orgSession.organizationId, params.id);
+    contract = await getContract(orgSession.organizationId, id);
   } catch (error) {
     notFound();
   }

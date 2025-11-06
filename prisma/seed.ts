@@ -771,10 +771,118 @@ async function main() {
     }
   }
 
-  console.log("✅ Seed completed successfully!");
-  console.log(`   - Created ${organizationsMap.size} organizations`);
+  // Create Teams for Organizations
+  console.log("\n📋 Creating teams for organizations...");
+  const teamsCreated: string[] = [];
+  
+  for (const [clubName, orgId] of organizationsMap.entries()) {
+    // Create main team for each organization
+    const teamSlug = clubName.toLowerCase().replace(/\s+/g, "-").replace(/fc$/g, "");
+    const team = await prisma.team.upsert({
+      where: {
+        organizationId_slug: {
+          organizationId: orgId,
+          slug: teamSlug,
+        },
+      },
+      update: {},
+      create: {
+        organizationId: orgId,
+        name: clubName,
+        slug: teamSlug,
+        description: `First team of ${clubName}`,
+      },
+    });
+    teamsCreated.push(team.id);
+    
+    // Create admin user for organization
+    const adminEmail = `${teamSlug.replace(/-/g, "")}@mcballer.test`;
+    const adminUser = await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: {},
+      create: {
+        email: adminEmail,
+        passwordHash: defaultPassword,
+        role: "org_admin",
+        organizationId: orgId,
+      },
+    });
+  }
+  
+  // Create Agent Organizations
+  console.log("\n👔 Creating agent organizations...");
+  const agents = [
+    { name: "Nigerian Football Agents", slug: "nigerian-football-agents", email: "info@nigerianagents.com" },
+    { name: "West Africa Sports Management", slug: "west-africa-sports", email: "contact@westafricasports.com" },
+    { name: "Elite Player Management", slug: "elite-player-management", email: "hello@eliteplayers.com" },
+  ];
+  
+  const agentsMap = new Map<string, string>();
+  for (const agent of agents) {
+    const org = await prisma.organization.upsert({
+      where: { slug: agent.slug },
+      update: {},
+      create: {
+        name: agent.name,
+        slug: agent.slug,
+        type: "agent",
+        email: agent.email,
+        phone: "+2348012345678",
+        description: `${agent.name} - Professional football agency representing Nigerian players`,
+      },
+    });
+    agentsMap.set(agent.name, org.id);
+    
+    // Create admin user for agent
+    const agentAdmin = await prisma.user.upsert({
+      where: { email: agent.email },
+      update: {},
+      create: {
+        email: agent.email,
+        passwordHash: defaultPassword,
+        role: "org_admin",
+        organizationId: org.id,
+      },
+    });
+  }
+  
+  // Assign some players to teams
+  console.log("\n⚽ Assigning players to teams...");
+  let assignedCount = 0;
+  for (const playerData of playersData) {
+    const orgId = organizationsMap.get(playerData.currentClub);
+    if (orgId) {
+      const team = await prisma.team.findFirst({
+        where: { organizationId: orgId },
+      });
+      if (team) {
+        const user = await prisma.user.findUnique({
+          where: { email: playerData.email },
+          include: { player: true },
+        });
+        if (user?.player) {
+          await prisma.player.update({
+            where: { id: user.player.id },
+            data: { teamId: team.id },
+          });
+          assignedCount++;
+        }
+      }
+    }
+  }
+
+  console.log("\n✅ Seed completed successfully!");
+  console.log(`   - Created ${organizationsMap.size} club organizations`);
+  console.log(`   - Created ${agentsMap.size} agent organizations`);
+  console.log(`   - Created ${teamsCreated.length} teams`);
   console.log(`   - Created ${playersData.length} players with their stats`);
+  console.log(`   - Assigned ${assignedCount} players to teams`);
   console.log(`   - Created ${postsData.length} posts`);
+  console.log(`   - Created admin users for all organizations`);
+  console.log("\n📝 Login credentials:");
+  console.log(`   - Players: Use any player email (e.g., chukwuemeka@test.com) with password: password123`);
+  console.log(`   - Organizations: Use org email (e.g., enyimba@mcballer.test) with password: password123`);
+  console.log(`   - Agents: Use agent email (e.g., info@nigerianagents.com) with password: password123`);
 }
 
 main()

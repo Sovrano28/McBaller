@@ -9,6 +9,8 @@
  * - Shows they're saved in the database
  */
 
+// Load environment variables from .env.local
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 

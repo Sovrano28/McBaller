@@ -80,7 +80,7 @@ export async function login(
     }
 
     // Set session cookie
-    cookies().set("auth-session", JSON.stringify(authSession), {
+    (await cookies()).set("auth-session", JSON.stringify(authSession), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -96,12 +96,12 @@ export async function login(
 }
 
 export async function logout(): Promise<void> {
-  cookies().delete("auth-session");
+  (await cookies()).delete("auth-session");
 }
 
 export async function getSession(): Promise<AuthSession | null> {
   try {
-    const sessionCookie = cookies().get("auth-session");
+    const sessionCookie = (await cookies()).get("auth-session");
     if (!sessionCookie?.value) {
       return null;
     }
@@ -260,7 +260,7 @@ export async function signupPlayer(
     };
 
     // Set session cookie
-    cookies().set("auth-session", JSON.stringify(authSession), {
+    (await cookies()).set("auth-session", JSON.stringify(authSession), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -359,7 +359,7 @@ export async function signupOrganization(
     };
 
     // Set session cookie
-    cookies().set("auth-session", JSON.stringify(authSession), {
+    (await cookies()).set("auth-session", JSON.stringify(authSession), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

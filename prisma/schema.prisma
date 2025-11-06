@@ -6,115 +6,149 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Organization {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   name        String
   slug        String   @unique
-  type        String   // "club" | "team" | "agent"
+  type        String // "club" | "team" | "agent"
   email       String
   phone       String?
   address     String?
   logo        String?
   website     String?
   description String?
-  settings    Json?    // Flexible settings storage
+  settings    Json? // Flexible settings storage
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relations
-  teams       Team[]
-  users       User[]
-  players     Player[]
-  contracts   Contract[]
-  invoices    Invoice[]
+  teams            Team[]
+  users            User[]
+  players          Player[]
+  contracts        Contract[]
+  invoices         Invoice[]
+  events           Event[]
+  calendarSyncs    CalendarSync[]
+  divisions        Division[]
+  ageGroups        AgeGroup[]
+  seasons          Season[]
+  announcements    Announcement[]
+  assignments      Assignment[]
+  media            MediaFile[]
+  tournaments      Tournament[]
+  venues           Venue[]
+  venueBookings    VenueBooking[]
+  waivers          Waiver[]
+  backgroundChecks BackgroundCheck[]
+  documents        Document[]
+  auditLogs        AuditLog[]
 
-  @@index([slug])
   @@index([type])
   @@map("organizations")
 }
 
 model Team {
-  id             String   @id @default(cuid())
+  id             String   @id @default(cuid()) @map("_id")
   organizationId String
   name           String
   slug           String
   logo           String?
   description    String?
+  divisionId     String? // Division/League level
+  ageGroupId     String? // Age group (U-10, U-15, etc.)
+  seasonId       String? // Current season
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   // Relations
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  division       Division?      @relation(fields: [divisionId], references: [id], onDelete: SetNull)
+  ageGroup       AgeGroup?      @relation(fields: [ageGroupId], references: [id], onDelete: SetNull)
+  season         Season?        @relation(fields: [seasonId], references: [id], onDelete: SetNull)
   contracts      Contract[]
   players        Player[]
+  events         Event[]
+  availabilities Availability[]
+  assignments    Assignment[]
+  media          MediaFile[]
+  announcements  Announcement[]
 
   @@unique([organizationId, slug])
   @@index([organizationId])
+  @@index([divisionId])
+  @@index([ageGroupId])
+  @@index([seasonId])
   @@map("teams")
 }
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
+  id             String    @id @default(cuid()) @map("_id")
+  email          String    @unique
   passwordHash   String
-  role           String   // "player" | "org_admin" | "coach" | "finance" | "analyst"
+  role           String // "player" | "org_admin" | "coach" | "finance" | "analyst"
   organizationId String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   lastLoginAt    DateTime?
 
   // Relations
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  player         Player?
+  organization     Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  player           Player?
+  backgroundChecks BackgroundCheck[]
+  documents        Document[]
+  auditLogs        AuditLog[]
 
-  @@index([email])
   @@index([organizationId])
   @@index([role])
   @@map("users")
 }
 
 model Player {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  name              String
-  username          String   @unique
-  phone             String
-  avatar            String?
-  dateOfBirth       DateTime?
-  state             String?
-  currentLocation   String?
-  position          String   // "Goalkeeper" | "Defender" | "Midfielder" | "Forward"
-  preferredFoot     String?  // "Left" | "Right" | "Both"
-  height            Int?
-  weight            Int?
-  bio               String?
-  socialMedia       Json?    // {instagram?, twitter?, facebook?}
-  subscriptionTier  String   @default("free") // "free" | "pro" | "elite"
+  id                 String    @id @default(cuid()) @map("_id")
+  userId             String    @unique
+  name               String
+  username           String    @unique
+  phone              String
+  avatar             String?
+  dateOfBirth        DateTime?
+  state              String?
+  currentLocation    String?
+  position           String // "Goalkeeper" | "Defender" | "Midfielder" | "Forward"
+  preferredFoot      String? // "Left" | "Right" | "Both"
+  height             Int?
+  weight             Int?
+  bio                String?
+  socialMedia        Json? // {instagram?, twitter?, facebook?}
+  subscriptionTier   String    @default("free") // "free" | "pro" | "elite"
   subscriptionExpiry DateTime?
-  trialUsed         Boolean  @default(false)
-  trainingCompleted Json?    // Array of training program IDs: ["1", "3", "5"]
-  badges            Json?    // Array of badge names: ["complete_profile", "week_streak"]
-  joinedAt          DateTime @default(now())
-  
+  trialUsed          Boolean   @default(false)
+  trainingCompleted  Json? // Array of training program IDs: ["1", "3", "5"]
+  badges             Json? // Array of badge names: ["complete_profile", "week_streak"]
+  joinedAt           DateTime  @default(now())
+
   // Organization Relations (nullable for independent players)
-  organizationId    String?
-  teamId            String?  // Current team assignment (one team only)
+  organizationId String?
+  teamId         String? // Current team assignment (one team only)
 
   // Relations
-  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organization      Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  team              Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
-  contracts         Contract[]
-  invoices          Invoice[]
-  leagueStats       LeagueStat[]
-  trainingProgress  TrainingProgress[]
-  posts             Post[]
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization     Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  team             Team?              @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  contracts        Contract[]
+  invoices         Invoice[]
+  leagueStats      LeagueStat[]
+  trainingProgress TrainingProgress[]
+  posts            Post[]
+  availabilities   Availability[]
+  attendances      Attendance[]
+  waiverSignatures WaiverSignature[]
+  backgroundChecks BackgroundCheck[]
+  documents        Document[]
 
-  @@index([username])
   @@index([organizationId])
   @@index([teamId])
   @@index([subscriptionTier])
@@ -122,21 +156,21 @@ model Player {
 }
 
 model LeagueStat {
-  id            String   @id @default(cuid())
-  playerId      String
-  season        String
-  club          String
-  appearances   Int      @default(0)
-  goals         Int      @default(0)
-  assists       Int      @default(0)
-  yellowCards   Int      @default(0)
-  redCards      Int      @default(0)
-  verified      Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String   @id @default(cuid()) @map("_id")
+  playerId    String
+  season      String
+  club        String
+  appearances Int      @default(0)
+  goals       Int      @default(0)
+  assists     Int      @default(0)
+  yellowCards Int      @default(0)
+  redCards    Int      @default(0)
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  player        Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@unique([playerId, season, club])
   @@index([playerId])
@@ -145,22 +179,22 @@ model LeagueStat {
 }
 
 model Contract {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid()) @map("_id")
   playerId       String
   organizationId String
   teamId         String?
   startDate      DateTime
   endDate        DateTime?
-  salary         Decimal? @db.Decimal(12, 2)
-  terms          Json?    // Structured contract terms
-  status         String   @default("active") // "active" | "expired" | "terminated"
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  salary         Float?
+  terms          Json? // Structured contract terms
+  status         String    @default("active") // "active" | "expired" | "terminated"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // Relations
-  player         Player       @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  team           Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  player       Player       @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
 
   @@index([playerId])
   @@index([organizationId])
@@ -169,44 +203,43 @@ model Contract {
 }
 
 model Invoice {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid()) @map("_id")
   organizationId String
   playerId       String?
-  invoiceNumber  String   @unique
-  amount         Decimal  @db.Decimal(12, 2)
-  currency       String   @default("NGN")
-  status         String   @default("draft") // "draft" | "sent" | "paid" | "overdue" | "void"
+  invoiceNumber  String    @unique
+  amount         Float
+  currency       String    @default("NGN")
+  status         String    @default("draft") // "draft" | "sent" | "paid" | "overdue" | "void"
   dueDate        DateTime
   paidAt         DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // Relations
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  player         Player?      @relation(fields: [playerId], references: [id], onDelete: SetNull)
-  payments       Payment[]
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  player       Player?      @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  payments     Payment[]
 
   @@index([organizationId])
   @@index([playerId])
   @@index([status])
-  @@index([invoiceNumber])
   @@map("invoices")
 }
 
 model Payment {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid()) @map("_id")
   invoiceId     String
-  amount        Decimal  @db.Decimal(12, 2)
-  method        String   // "paystack" | "bank_transfer" | "mobile_money" | "cash"
-  status        String   @default("pending") // "pending" | "succeeded" | "failed" | "refunded"
+  amount        Float
+  method        String // "paystack" | "bank_transfer" | "mobile_money" | "cash"
+  status        String    @default("pending") // "pending" | "succeeded" | "failed" | "refunded"
   transactionId String?
   paidAt        DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relations
-  invoice       Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  transactions  Transaction[]
+  invoice      Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
 
   @@index([invoiceId])
   @@index([status])
@@ -215,17 +248,17 @@ model Payment {
 }
 
 model Transaction {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   paymentId String
-  type      String   // "payment" | "refund" | "adjustment"
-  amount    Decimal  @db.Decimal(12, 2)
-  status    String   // "pending" | "completed" | "failed"
-  metadata  Json?    // Flexible storage for payment gateway responses
+  type      String // "payment" | "refund" | "adjustment"
+  amount    Float
+  status    String // "pending" | "completed" | "failed"
+  metadata  Json? // Flexible storage for payment gateway responses
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
 
   @@index([paymentId])
   @@index([status])
@@ -233,17 +266,17 @@ model Transaction {
 }
 
 model TrainingProgress {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid()) @map("_id")
   playerId          String
-  trainingProgramId String   // References training program ID from mock data
-  status            String   @default("in_progress") // "not_started" | "in_progress" | "completed"
-  progressPercent   Int      @default(0)
+  trainingProgramId String // References training program ID from mock data
+  status            String    @default("in_progress") // "not_started" | "in_progress" | "completed"
+  progressPercent   Int       @default(0)
   completedAt       DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   // Relations
-  player            Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@unique([playerId, trainingProgramId])
   @@index([playerId])
@@ -251,10 +284,10 @@ model TrainingProgress {
 }
 
 model Post {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   playerId  String
   content   String
-  mediaType String?  // "image" | "video" | null
+  mediaType String? // "image" | "video" | null
   mediaUrl  String?
   likes     Int      @default(0)
   comments  Int      @default(0)
@@ -262,10 +295,503 @@ model Post {
   updatedAt DateTime @updatedAt
 
   // Relations
-  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@index([playerId])
   @@index([createdAt])
   @@map("posts")
 }
 
+model Event {
+  id             String    @id @default(cuid()) @map("_id")
+  organizationId String
+  teamId         String?
+  title          String
+  description    String?
+  type           String // "practice" | "game" | "tournament" | "meeting"
+  startTime      DateTime
+  endTime        DateTime
+  location       String?
+  isAllDay       Boolean   @default(false)
+  status         String    @default("scheduled") // "scheduled" | "cancelled" | "completed"
+  recurringType  String? // "none" | "daily" | "weekly" | "monthly"
+  recurringEnd   DateTime?
+  attendees      Json? // Array of attendee IDs or details
+  reminders      Json? // Array of reminder times before event
+  externalId     String? // ID from external calendar (Google, Outlook)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  team           Team?          @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  availabilities Availability[]
+  attendances    Attendance[]
+  venueBookings  VenueBooking[] @relation("EventVenueBookings")
+  fixtures       Fixture[]      @relation("EventFixtures")
+
+  @@index([organizationId])
+  @@index([teamId])
+  @@index([startTime])
+  @@index([type])
+  @@index([status])
+  @@map("events")
+}
+
+model CalendarSync {
+  id             String    @id @default(cuid()) @map("_id")
+  organizationId String    @unique
+  provider       String // "google" | "outlook" | "apple"
+  accessToken    String
+  refreshToken   String?
+  expiresAt      DateTime?
+  calendarId     String? // External calendar ID
+  isActive       Boolean   @default(true)
+  lastSyncAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([provider])
+  @@map("calendar_syncs")
+}
+
+// Core Team/Club Management Models
+
+model Division {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String
+  name           String // e.g., "Premier Division", "First Division"
+  description    String?
+  level          Int? // Numeric level (1 = highest)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  teams        Team[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("divisions")
+}
+
+model AgeGroup {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String
+  name           String // e.g., "U-10", "U-15", "U-20", "Senior"
+  minAge         Int?
+  maxAge         Int?
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  teams        Team[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("age_groups")
+}
+
+model Season {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String
+  name           String // e.g., "2024/2025 Season"
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean  @default(false)
+  description    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  teams        Team[]
+  tournaments  Tournament[]
+
+  @@index([organizationId])
+  @@index([isActive])
+  @@map("seasons")
+}
+
+model Availability {
+  id          String    @id @default(cuid()) @map("_id")
+  eventId     String
+  playerId    String
+  teamId      String?
+  status      String    @default("pending") // "available" | "unavailable" | "maybe" | "pending"
+  notes       String?
+  respondedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  team   Team?  @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@unique([eventId, playerId])
+  @@index([eventId])
+  @@index([playerId])
+  @@index([status])
+  @@map("availabilities")
+}
+
+// Communication & Collaboration Models
+
+model Announcement {
+  id             String    @id @default(cuid()) @map("_id")
+  organizationId String
+  teamId         String? // null = org-wide
+  createdById    String // User ID who created it
+  title          String
+  content        String
+  priority       String    @default("normal") // "low" | "normal" | "high" | "urgent"
+  sendEmail      Boolean   @default(false)
+  sendPush       Boolean   @default(false)
+  targetAudience Json? // ["all", "coaches", "players", "parents"] or specific IDs
+  attachments    Json? // Array of file URLs
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([teamId])
+  @@index([createdAt])
+  @@index([priority])
+  @@map("announcements")
+}
+
+model Assignment {
+  id             String    @id @default(cuid()) @map("_id")
+  organizationId String
+  teamId         String?
+  createdById    String
+  title          String
+  description    String?
+  type           String    @default("volunteer") // "volunteer" | "task" | "duty"
+  assignedToId   String? // Player or User ID
+  assignedToType String? // "player" | "user"
+  status         String    @default("pending") // "pending" | "in_progress" | "completed" | "cancelled"
+  dueDate        DateTime?
+  completedAt    DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([teamId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("assignments")
+}
+
+model MediaFile {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String
+  teamId         String?
+  uploadedById   String
+  title          String
+  description    String?
+  fileType       String // "image" | "video" | "document" | "other"
+  fileName       String
+  fileUrl        String
+  fileSize       Int? // bytes
+  mimeType       String?
+  category       String? // "training_drill" | "match_highlights" | "form" | "photo" | "other"
+  isPublic       Boolean  @default(false)
+  tags           Json? // Array of tags
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([teamId])
+  @@index([fileType])
+  @@index([category])
+  @@index([createdAt])
+  @@map("media_files")
+}
+
+// Event/Competition/Season Management Models
+
+model Tournament {
+  id             String    @id @default(cuid()) @map("_id")
+  organizationId String
+  seasonId       String?
+  name           String
+  description    String?
+  type           String    @default("knockout") // "knockout" | "round_robin" | "group_stage" | "bracket"
+  startDate      DateTime
+  endDate        DateTime?
+  status         String    @default("upcoming") // "upcoming" | "in_progress" | "completed" | "cancelled"
+  bracketData    Json? // Tournament bracket structure
+  pools          Json? // Group/pool assignments
+  settings       Json? // Tournament-specific settings
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  season       Season?      @relation(fields: [seasonId], references: [id], onDelete: SetNull)
+  fixtures     Fixture[]
+
+  @@index([organizationId])
+  @@index([seasonId])
+  @@index([status])
+  @@index([startDate])
+  @@map("tournaments")
+}
+
+model Fixture {
+  id           String   @id @default(cuid()) @map("_id")
+  tournamentId String?
+  eventId      String? // Link to Event if exists
+  homeTeamId   String?
+  awayTeamId   String?
+  homeTeamName String?
+  awayTeamName String?
+  scheduledAt  DateTime
+  venueId      String?
+  status       String   @default("scheduled") // "scheduled" | "live" | "completed" | "postponed" | "cancelled"
+  homeScore    Int?
+  awayScore    Int?
+  round        String? // "Group A", "Quarterfinal", etc.
+  metadata     Json? // Additional fixture data
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  tournament Tournament? @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  venue      Venue?      @relation(fields: [venueId], references: [id], onDelete: SetNull)
+  event      Event?      @relation("EventFixtures", fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([tournamentId])
+  @@index([venueId])
+  @@index([eventId])
+  @@index([scheduledAt])
+  @@index([status])
+  @@map("fixtures")
+}
+
+model Venue {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String
+  name           String
+  address        String?
+  city           String?
+  state          String?
+  capacity       Int?
+  facilities     Json? // ["parking", "changing_rooms", "lights", etc.]
+  contactName    String?
+  contactPhone   String?
+  contactEmail   String?
+  notes          String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  bookings     VenueBooking[]
+  fixtures     Fixture[]
+
+  @@index([organizationId])
+  @@index([isActive])
+  @@map("venues")
+}
+
+model VenueBooking {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String
+  venueId        String
+  eventId        String? // Link to Event if exists
+  startTime      DateTime
+  endTime        DateTime
+  status         String   @default("pending") // "pending" | "confirmed" | "cancelled"
+  notes          String?
+  bookedById     String // User ID who made the booking
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  venue        Venue        @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  event        Event?       @relation("EventVenueBookings", fields: [eventId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([venueId])
+  @@index([eventId])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([status])
+  @@map("venue_bookings")
+}
+
+model Attendance {
+  id            String    @id @default(cuid()) @map("_id")
+  eventId       String
+  playerId      String
+  checkedInAt   DateTime?
+  checkedInById String? // User ID who checked them in
+  status        String    @default("absent") // "present" | "absent" | "late" | "excused"
+  healthCheck   Json? // Health check data (temperature, symptoms, etc.)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, playerId])
+  @@index([eventId])
+  @@index([playerId])
+  @@index([status])
+  @@map("attendances")
+}
+
+// Compliance, Safety & Administration Models
+
+model Waiver {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String
+  title          String
+  content        String // Waiver text/content
+  version        String   @default("1.0")
+  isActive       Boolean  @default(true)
+  requiresParent Boolean  @default(false) // For minors
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  signatures   WaiverSignature[]
+
+  @@index([organizationId])
+  @@index([isActive])
+  @@map("waivers")
+}
+
+model WaiverSignature {
+  id            String   @id @default(cuid()) @map("_id")
+  waiverId      String
+  playerId      String?
+  parentName    String? // If signed by parent
+  parentEmail   String?
+  signatureData String // Base64 signature image or text
+  ipAddress     String?
+  userAgent     String?
+  signedAt      DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  // Relations
+  waiver Waiver  @relation(fields: [waiverId], references: [id], onDelete: Cascade)
+  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+
+  @@unique([waiverId, playerId])
+  @@index([waiverId])
+  @@index([playerId])
+  @@map("waiver_signatures")
+}
+
+model BackgroundCheck {
+  id             String    @id @default(cuid()) @map("_id")
+  organizationId String
+  userId         String? // For coaches/staff
+  playerId       String? // For players (if required)
+  type           String // "criminal" | "reference" | "education" | "certification"
+  status         String    @default("pending") // "pending" | "in_progress" | "passed" | "failed" | "expired"
+  provider       String? // Background check service provider
+  referenceId    String? // External reference ID
+  completedAt    DateTime?
+  expiresAt      DateTime?
+  notes          String?
+  documentUrl    String? // Link to check document
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  player       Player?      @relation(fields: [playerId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([playerId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("background_checks")
+}
+
+model Document {
+  id             String    @id @default(cuid()) @map("_id")
+  organizationId String
+  playerId       String? // If document is player-specific
+  userId         String? // If document is user-specific
+  title          String
+  description    String?
+  category       String // "medical" | "insurance" | "contract" | "identification" | "certification" | "other"
+  fileUrl        String
+  fileName       String
+  fileSize       Int?
+  mimeType       String?
+  isConfidential Boolean   @default(true)
+  accessRoles    Json? // ["org_admin", "coach"] - who can view
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  player       Player?      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([playerId])
+  @@index([userId])
+  @@index([category])
+  @@index([isConfidential])
+  @@map("documents")
+}
+
+model AuditLog {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String?
+  userId         String? // User who performed the action
+  action         String // "create" | "update" | "delete" | "view" | "export"
+  entityType     String // "player" | "contract" | "invoice" | "document" | etc.
+  entityId       String?
+  changes        Json? // Before/after data
+  ipAddress      String?
+  userAgent      String?
+  metadata       Json? // Additional context
+  createdAt      DateTime @default(now())
+
+  // Relations
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

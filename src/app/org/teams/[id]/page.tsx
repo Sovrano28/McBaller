@@ -18,8 +18,9 @@ import { ArrowLeft, Users, FileText } from "lucide-react";
 export default async function OrgTeamDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await getSession();
 
   if (!session || session.role === "player") {
@@ -33,7 +34,7 @@ export default async function OrgTeamDetailPage({
 
   let team;
   try {
-    team = await getOrganizationTeam(orgSession.organizationId, params.id);
+    team = await getOrganizationTeam(orgSession.organizationId, id);
   } catch (error) {
     notFound();
   }
