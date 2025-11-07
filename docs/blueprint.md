@@ -189,7 +189,7 @@ Organizations can manage their players, view performance data, handle contracts,
 - **State Management**: React Context for auth; Server Components for data
 - **Form Handling**: React Hook Form with Zod validation
 - **Charts**: Recharts for analytics
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: MongoDB Atlas with Prisma ORM
 - **Authentication**: NextAuth.js v5 or custom session-based auth
 - **File Storage**: Local filesystem or cloud storage (S3/Cloudinary) for media
 - **Routing**: Next.js App Router (file-system based)

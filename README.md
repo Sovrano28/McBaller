@@ -12,7 +12,7 @@ McSportng is a comprehensive professional development platform exclusively for N
 
 - Node.js 18+
 - npm or yarn
-- PostgreSQL (or use Supabase/Neon cloud database)
+- MongoDB (local instance or MongoDB Atlas cluster)
 
 ### Installation
 
@@ -22,10 +22,10 @@ npm install
 
 # Set up environment variables
 cp .env.example .env.local
-# Edit .env.local with your database credentials
+# Edit .env.local with your MongoDB connection string
 
-# Run database migrations
-npx prisma migrate dev
+# Create collections from the Prisma schema
+npx prisma db push
 
 # Seed the database (optional)
 npx prisma db seed
@@ -41,7 +41,7 @@ Visit [http://localhost:9002](http://localhost:9002)
 - **Framework**: Next.js 15+ (App Router)
 - **Styling**: Tailwind CSS
 - **UI Components**: shadcn/ui (Radix UI)
-- **Database**: PostgreSQL with Prisma ORM
+- **Database**: MongoDB Atlas (or local MongoDB) with Prisma ORM
 - **Authentication**: Session-based auth
 - **Charts**: Recharts
 
@@ -106,14 +106,11 @@ npm run db:test            # Test database operations
 Create a `.env.local` file in the root directory:
 
 ```env
-# Database (choose one)
-DATABASE_URL="postgresql://postgres:password@localhost:5432/mcsportng?schema=public"
-# OR use Supabase
-# DATABASE_URL="postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+# MongoDB Atlas (example)
+DATABASE_URL="mongodb+srv://mcballer:password@cluster0.xxxxx.mongodb.net/mcballer?retryWrites=true&w=majority"
 
-# Optional: Supabase Client (for future features)
-# NEXT_PUBLIC_SUPABASE_URL="https://[PROJECT_REF].supabase.co"
-# NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
+# Local MongoDB (example)
+# DATABASE_URL="mongodb://localhost:27017/mcballer"
 ```
 
 ## Contributing

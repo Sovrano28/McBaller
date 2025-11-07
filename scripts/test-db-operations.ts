@@ -123,7 +123,7 @@ async function testOperations() {
     console.log("\n✅ All database operations working!");
     console.log("\n💡 You can verify in:");
     console.log("   - Prisma Studio: npx prisma studio");
-    console.log("   - pgAdmin: Check contracts and invoices tables");
+    console.log("   - MongoDB Compass: Inspect contract and invoice collections");
     console.log("   - Your app: /org/contracts and /org/billing/invoices");
   } catch (error: any) {
     console.error("\n❌ Error:", error.message);

@@ -1,228 +1,91 @@
-# How to Verify PostgreSQL Connection
+# How to Verify MongoDB Connection
 
 ## ✅ Quick Verification Methods
 
-### Method 1: Run Verification Script (Recommended)
+### Method 1: Run the Verification Script (Recommended)
 
-I've created a script that verifies everything:
+Use the bundled script to confirm everything is configured correctly:
 
 ```bash
 npx tsx scripts/verify-db-connection.ts
 ```
 
-**What it checks:**
+**The script checks:**
 
-- ✅ DATABASE_URL is configured
-- ✅ Can connect to PostgreSQL
-- ✅ All tables exist
-- ✅ Can perform queries
-- ✅ Relationships work
-- ✅ Shows connection details for pgAdmin
+- ✅ `DATABASE_URL` exists
+- ✅ Prisma can connect to MongoDB Atlas
+- ✅ Core collections respond to queries
+- ✅ Relations return data without errors
+- ✅ Suggested next steps (Prisma Studio, MongoDB Compass)
 
 ### Method 2: Prisma Studio (GUI)
 
-If Prisma Studio is working (which it is in your terminal), that's a **strong indicator** your app is connected:
+Prisma Studio uses the same credentials as the app:
 
 ```bash
 npx prisma studio
 ```
 
-If you can see your data in Prisma Studio → Your app **IS connected** to PostgreSQL! ✅
+If you can browse collections such as `Organization`, `Player`, and `Contract`, your connection is healthy. ✅
 
-### Method 3: Test in Your App
-
-The simplest test:
+### Method 3: Test Through the App
 
 1. Log in as an organization user
-2. Navigate to `/org/dashboard`
-3. If you see real data (not empty) → Connected! ✅
-4. Try creating a contract or invoice
-5. If it saves and you can see it → Definitely connected! ✅
+2. Visit `/org/dashboard`
+3. Confirm real data appears
+4. Create a contract or invoice
+5. Refresh to ensure it persists
+
+If the data saves and shows up again, you're connected. ✅
 
 ---
 
-## 📊 Verify in pgAdmin
+## 📊 Inspect in MongoDB Compass (Optional)
 
-Based on the verification script output, here's how to connect:
-
-### Connection Details (from your setup)
-
-- **Host**: `localhost`
-- **Port**: `5432`
-- **Database**: `mcsportng`
-- **Username**: `postgres`
-- **Password**: (the password you set when creating the database)
-
-### Steps to Connect in pgAdmin
-
-1. **Open pgAdmin** (if not already open)
-
-2. **Add New Server** (if not already added):
-
-   - Right-click "Servers" → "Register" → "Server"
-
-3. **General Tab**:
-
-   - Name: `McSportng Local` (or any name you prefer)
-
-4. **Connection Tab**:
-
-   - Host name/address: `localhost`
-   - Port: `5432`
-   - Maintenance database: `mcsportng`
-   - Username: `postgres`
-   - Password: (your PostgreSQL password)
-   - ☑️ Save password
-
-5. **Click "Save"**
-
-6. **Expand the server** → Expand "Databases" → Expand "mcsportng"
-
-### What to Check in pgAdmin
-
-Once connected, verify:
-
-1. **Tables exist**:
-
-   - Navigate to: `Servers` → `McSportng Local` → `Databases` → `mcsportng` → `Schemas` → `public` → `Tables`
-   - You should see these tables:
-     - ✅ `organizations`
-     - ✅ `teams`
-     - ✅ `users`
-     - ✅ `players`
-     - ✅ `contracts`
-     - ✅ `invoices`
-     - ✅ `payments`
-     - ✅ `transactions`
-     - ✅ `league_stats`
-     - ✅ `training_progress`
-     - ✅ `posts`
-
-2. **Check data**:
-
-   - Right-click any table (e.g., `organizations`) → "View/Edit Data" → "All Rows"
-   - You should see your seeded data
-
-3. **Test a query**:
-   - Right-click `mcsportng` → "Query Tool"
-   - Run: `SELECT COUNT(*) FROM organizations;`
-   - Should return a number (you have 13 organizations)
+1. Download [MongoDB Compass](https://www.mongodb.com/products/compass)
+2. Paste your `DATABASE_URL` connection string
+3. Expand the `mcballer` database
+4. Browse collections like `Organization`, `Player`, `Contract`, and `Invoice`
+5. Use filters to spot-check recent documents
 
 ---
 
-## 🔍 How to Know Your App is Connected
+## 🔍 Signals That Confirm You're Connected
 
-### Strong Indicators (All working for you!):
+1. ✅ Prisma Studio loads documents at `http://localhost:5555`
+2. ✅ `npm run db:verify` prints collection counts without errors
+3. ✅ Seed data (organizations, users, players) appears in the UI
+4. ✅ Newly created data persists across page reloads
 
-1. ✅ **Prisma Studio works** (running at `http://localhost:5555`)
-
-   - This directly queries PostgreSQL via Prisma
-   - If Prisma Studio shows data → Connected!
-
-2. ✅ **Verification script passed**
-
-   - Connection successful
-   - All tables exist
-   - Queries work
-
-3. ✅ **Database has data**
-   - 13 organizations
-   - 15 users
-   - 15 players
-   - This means migrations and seeding worked!
-
-### To Confirm in Real-Time:
-
-1. **Watch Prisma logs** in your terminal:
-
-   ```bash
-   npm run dev
-   ```
-
-   - When you navigate pages, you'll see SQL queries in the terminal
-   - Example: `prisma:query SELECT ... FROM "organizations"`
-
-2. **Create data and verify**:
-
-   - Log in as organization → Create a contract
-   - Check in Prisma Studio → See the new contract
-   - Check in pgAdmin → See the new row in `contracts` table
-
-3. **Query in pgAdmin**:
-
-   ```sql
-   -- See recent contracts
-   SELECT * FROM contracts ORDER BY "createdAt" DESC LIMIT 5;
-
-   -- See recent invoices
-   SELECT * FROM invoices ORDER BY "createdAt" DESC LIMIT 5;
-
-   -- See players with their organizations
-   SELECT p.name, p.position, o.name as organization
-   FROM players p
-   LEFT JOIN organizations o ON p."organizationId" = o.id
-   LIMIT 10;
-   ```
+Keep an eye on your terminal when running `npm run dev`—Prisma logs MongoDB queries as they happen.
 
 ---
 
 ## 🐛 Troubleshooting
 
-### If Prisma Studio works but app doesn't:
+### Prisma Studio works, but the app doesn’t
 
-1. **Check `.env.local` file exists**:
+1. Confirm `.env.local` contains a valid MongoDB connection string
+2. Restart the dev server: `npm run dev`
+3. Clear Next.js cache if needed: `rm -rf .next && npm run dev`
 
-   ```bash
-   # Should have:
-   DATABASE_URL="postgresql://postgres:password@localhost:5432/mcsportng?schema=public"
-   ```
+### Connection errors in the script or app
 
-2. **Restart Next.js dev server**:
-
-   ```bash
-   # Stop current server (Ctrl+C)
-   npm run dev
-   ```
-
-3. **Clear Next.js cache**:
-   ```bash
-   rm -rf .next
-   npm run dev
-   ```
-
-### If nothing works:
-
-1. **Verify PostgreSQL is running**:
-
-   ```bash
-   # Windows (check Services)
-   # Or in pgAdmin, try connecting
-   ```
-
-2. **Test connection manually**:
-
-   ```bash
-   psql -h localhost -U postgres -d mcsportng
-   ```
-
-3. **Check DATABASE_URL**:
-   ```bash
-   # In your app root, create/check .env.local
-   echo $DATABASE_URL  # Should show your connection string
-   ```
+1. Ensure your IP is allowed under **Network Access** in MongoDB Atlas
+2. Verify username, password, and database name in the connection string
+3. Check that your Atlas cluster is running (green status)
+4. If credentials were rotated, update `.env.local` and restart
 
 ---
 
-## ✅ Current Status (From Verification)
+## ✅ What Success Looks Like
 
-Based on the script output:
+When everything is configured correctly you’ll see:
 
-- ✅ **Connected**: Successfully connected to PostgreSQL
-- ✅ **Database**: `mcsportng` on `localhost:5432`
-- ✅ **Tables**: All 11 tables exist
-- ✅ **Data**: 13 organizations, 15 users, 15 players seeded
-- ✅ **Relationships**: Working (can query related data)
+- ✅ Verification script completes without errors
+- ✅ Collection counts logged to the console
+- ✅ Sample organizations, teams, and players returned
+- ✅ Documents visible in Prisma Studio and MongoDB Compass
 
-**Conclusion**: Your app **IS fully connected** to PostgreSQL! 🎉
+If those items are true, your app is fully connected to MongoDB Atlas. 🎉
 
-The fact that Prisma Studio works is the best proof - it directly queries your PostgreSQL database using the same connection string your app uses.

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { GoogleCalendar, Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, CalendarClock } from "lucide-react";
 
 export default function CalendarSyncSettings() {
   const { toast } = useToast();
@@ -41,7 +41,7 @@ export default function CalendarSyncSettings() {
         onClick={handleConnectGoogle}
         disabled={isConnecting}
       >
-        <GoogleCalendar className="mr-2 h-4 w-4" />
+        <CalendarIcon className="mr-2 h-4 w-4" />
         Connect Google Calendar
       </Button>
       <Button
@@ -50,7 +50,7 @@ export default function CalendarSyncSettings() {
         onClick={handleConnectOutlook}
         disabled={isConnecting}
       >
-        <CalendarIcon className="mr-2 h-4 w-4" />
+        <CalendarClock className="mr-2 h-4 w-4" />
         Connect Outlook Calendar
       </Button>
     </div>

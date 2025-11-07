@@ -409,14 +409,14 @@ MICROSOFT_REDIRECT_URI=http://localhost:9002/api/auth/microsoft/callback
 
 ## Migration Notes
 
-Database migration: `20251103170602_add_calendar_events`
+Database schema updates for the calendar feature are included in the Prisma schema.
 
-Run migration:
+Apply schema changes:
 ```bash
-npx prisma migrate dev --name add_calendar_events
+npx prisma db push
 ```
 
-Generate Prisma Client:
+Regenerate Prisma Client (if needed):
 ```bash
 npx prisma generate
 ```

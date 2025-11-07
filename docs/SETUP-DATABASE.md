@@ -1,116 +1,83 @@
-# Local PostgreSQL Setup - Step by Step
+# Local MongoDB Setup - Step by Step
 
-## Step 1: Create Database
+## Step 1: Install MongoDB Community Edition
 
-### Option A: Using pgAdmin (GUI - Easiest)
+1. Download the installer from [mongodb.com/try/download/community](https://www.mongodb.com/try/download/community).
+2. Choose the latest **MSI** for Windows.
+3. During installation:
+   - Select **Complete** setup.
+   - Check **Install MongoDB Compass** if you want the GUI (recommended).
+   - Leave "Run service as Network Service user" enabled.
+4. Finish the install; the MongoDB service will start automatically.
 
-1. Open **pgAdmin** (comes with PostgreSQL installation)
-2. Connect to your PostgreSQL server (default: localhost, port 5432)
-3. Right-click on **Databases** → **Create** → **Database...**
-4. Enter database name: `mcsportng`
-5. Click **Save**
-
-### Option B: Using Command Prompt
+## Step 2: Create the Application Database
 
 Open **Command Prompt** or **PowerShell** and run:
 
 ```bash
-# Find your PostgreSQL bin folder (usually in Program Files)
-# Example path: C:\Program Files\PostgreSQL\15\bin
-
-# Add to PATH temporarily for this session, then:
-createdb -U postgres mcsportng
+"C:\Program Files\MongoDB\Server\<version>\bin\mongosh.exe"
 ```
 
-Or if you know your PostgreSQL password:
+In the Mongo shell:
 
-```bash
-# Replace 'yourpassword' with your PostgreSQL postgres user password
-createdb -U postgres -W mcsportng
+```javascript
+use mcballer
+db.createCollection("Organization")
 ```
 
-### Option C: Using psql Command Line
+This creates the database and a starter collection. You can exit the shell with `exit`.
 
-```bash
-# Connect to PostgreSQL
-psql -U postgres
+## Step 3: Create `.env.local`
 
-# Then in psql prompt, run:
-CREATE DATABASE mcsportng;
-
-# Exit psql
-\q
-```
-
----
-
-## Step 2: Create .env.local File
-
-Create a file named `.env.local` in your project root (same level as `package.json`) with this content:
+In the project root (same folder as `package.json`), create a file named `.env.local`:
 
 ```env
-DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/mcsportng?schema=public"
+DATABASE_URL="mongodb://localhost:27017/mcballer"
 ```
 
-**Replace `YOUR_PASSWORD` with your PostgreSQL postgres user password.**
+If you set up authentication, add `username:password@` before `localhost`.
 
-**Default values:**
-
-- Username: `postgres` (default PostgreSQL superuser)
-- Host: `localhost`
-- Port: `5432` (default PostgreSQL port)
-- Database: `mcsportng`
-
-If you use a different username or password, update the connection string accordingly.
-
----
-
-## Step 3: Run Migration
-
-After creating the database and `.env.local` file, run:
+## Step 4: Push the Prisma Schema
 
 ```bash
-npx prisma migrate dev --name init
+npx prisma generate
+npx prisma db push
 ```
 
-This will:
+This generates the Prisma client and creates all required collections in your local MongoDB instance.
 
-- Create all database tables
-- Generate the Prisma Client types
-- Set up the schema
+## Step 5: (Optional) Seed Example Data
 
----
+```bash
+npm run prisma:seed
+```
 
-## Step 4: Verify Setup
-
-Open Prisma Studio to view your database:
+## Step 6: Verify the Connection
 
 ```bash
 npx prisma studio
 ```
 
-This opens a web UI at `http://localhost:5555` where you can see all your tables.
+Prisma Studio opens at `http://localhost:5555`. You should see the newly created collections. Alternatively, open MongoDB Compass and connect using `mongodb://localhost:27017`.
 
 ---
 
 ## Troubleshooting
 
-### "Connection refused" error
+### MongoDB service isn't running
 
-- Make sure PostgreSQL service is running
-- Check Windows Services: `services.msc` → find "postgresql-x64-XX" → ensure it's Running
+- Open **Services** (`services.msc`) and ensure `MongoDB` status is **Running**.
+- Start it manually if needed.
 
-### "Password authentication failed"
+### Cannot connect from Prisma
 
-- Verify your password in `.env.local`
-- If you forgot the password, reset it in pgAdmin or reinstall PostgreSQL
+- Confirm the connection string in `.env.local` matches your setup.
+- Restart the dev server after updating environment variables.
 
-### "Database does not exist"
+### Collections missing in Compass
 
-- Make sure you created the `mcsportng` database first (Step 1)
-- Check the database name in `.env.local` matches exactly
+- Run `npx prisma db push` again; Prisma will recreate the schema if necessary.
+- Ensure you are pointing Compass to the correct database (`mcballer`).
 
-### Can't find psql/createdb command
+With these steps complete, your local MongoDB environment is ready for development. 🎉
 
-- Use pgAdmin (Option A above) - it's the easiest
-- Or add PostgreSQL bin folder to your Windows PATH

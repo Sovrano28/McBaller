@@ -1,57 +1,36 @@
 # Database Setup Instructions
 
-## Quick Start - Choose Your Database Option
+The project now uses **MongoDB Atlas** via Prisma's MongoDB connector. Follow the quick steps below to get connected.
 
-### Option 1: Supabase (Recommended - Free Tier)
+## Quick Start
 
-1. Go to [supabase.com](https://supabase.com) and sign up
-2. Create a new project
-3. Go to **Settings** → **Database**
-4. Copy the **Connection String** (URI format)
-5. Paste it into `.env.local` as `DATABASE_URL`
-6. Format: `postgresql://postgres.[PROJECT_REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres`
-
-### Option 2: Neon (Recommended - Free Tier)
-
-1. Go to [neon.tech](https://neon.tech) and sign up
-2. Create a new project
-3. Copy the **Connection String**
-4. Paste it into `.env.local` as `DATABASE_URL`
-
-### Option 3: Local PostgreSQL
-
-1. Install PostgreSQL on your machine
-2. Create a database: `createdb mcsportng`
-3. Set `DATABASE_URL` in `.env.local`:
-   ```
-   DATABASE_URL="postgresql://postgres:yourpassword@localhost:5432/mcsportng?schema=public"
-   ```
-
-## Next Steps After Database Setup
-
-1. **Create `.env.local` file** in project root:
+1. **Create a MongoDB Atlas cluster** (free M0 tier works great).
+2. **Create a database user** with password authentication.
+3. **Allow your IP** under *Network Access* (use "Allow Access from Anywhere" for development).
+4. **Copy the connection string** (Driver: Node.js, Version 5.5+).
+5. **Update `.env.local`:**
 
    ```env
-   DATABASE_URL="your-connection-string-here"
+   DATABASE_URL="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/mcballer?retryWrites=true&w=majority"
    ```
 
-2. **Run the migration**:
+   Replace `<user>`, `<password>`, and `<cluster>` with your actual values.
 
-   ```bash
-   npx prisma migrate dev --name init
-   ```
-
-3. **Seed the database** (optional):
-   ```bash
-   npx prisma db seed
-   ```
-
-## Verify Setup
-
-Run this command to verify your database connection:
+## Initialize the Database
 
 ```bash
-npx prisma studio
+npm install          # if you haven't already
+npx prisma generate  # generate Prisma client for MongoDB
+npx prisma db push   # create collections in MongoDB
+npm run prisma:seed  # optional: load example data
 ```
 
-This opens Prisma Studio where you can view and edit your database tables in a GUI.
+## Helpful Scripts
+
+- `npm run db:setup` – guided MongoDB config helper
+- `npm run db:verify` – tests the connection and basic queries
+- `npm run db:test` – runs sample create/read operations to confirm everything works end-to-end
+
+## Need more guidance?
+
+Check out `docs/MONGODB-SETUP.md` for a detailed Atlas walkthrough, or `docs/VERIFY-DATABASE-CONNECTION.md` to troubleshoot connection issues.

@@ -2,23 +2,23 @@
 
 ## Prerequisites
 
-- PostgreSQL database running (local or Supabase)
-- Prisma migrations applied
+- MongoDB database running (local or Atlas)
+- Prisma schema pushed (`npx prisma db push`)
 - Next.js dev server ready
 
 ---
 
 ## Setup Steps
 
-### 1. Database Migration
+### 1. Push Prisma Schema
 
-The calendar tables have been added via migration. If you haven't run it yet:
+The calendar collections are part of the Prisma schema. If you haven't created them yet:
 
 ```bash
-npx prisma migrate dev
+npx prisma db push
 ```
 
-This will create the `events` and `calendar_syncs` tables.
+This will create the `Event` and `CalendarSync` collections.
 
 ### 2. Generate Prisma Client
 
@@ -28,7 +28,7 @@ If you're seeing TypeScript errors, regenerate Prisma Client:
 npx prisma generate
 ```
 
-**Note**: If you get a permission error (EPERM), stop your dev server first, then regenerate.
+**Note**: Stop your dev server first if you get an EPERM error.
 
 ### 3. Start Development Server
 
