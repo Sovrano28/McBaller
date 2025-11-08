@@ -8,6 +8,7 @@ import type {
   UserRole,
   PlayerAuthData,
   OrgAuthData,
+  SuperAdminAuthData,
 } from "@/lib/auth-types";
 
 export interface LoginResult {
@@ -74,6 +75,13 @@ export async function login(
         role: user.role as UserRole,
         organizationId: user.organizationId,
         organizationName: user.organization?.name,
+      };
+    } else if (user.role === "super_admin") {
+      authSession = {
+        id: user.id,
+        email: user.email,
+        role: "super_admin",
+        organizationId: null,
       };
     } else {
       return { success: false, error: "Invalid user configuration" };
@@ -370,6 +378,81 @@ export async function signupOrganization(
     return { success: true, user: authSession };
   } catch (error) {
     console.error("Organization signup error:", error);
+    return { success: false, error: "An error occurred during signup" };
+  }
+}
+
+export interface SuperAdminSignupData {
+  name: string;
+  email: string;
+  password: string;
+  inviteCode: string;
+}
+
+export interface SuperAdminSignupResult {
+  success: boolean;
+  user?: SuperAdminAuthData;
+  error?: string;
+}
+
+export async function signupSuperAdmin(
+  data: SuperAdminSignupData
+): Promise<SuperAdminSignupResult> {
+  try {
+    // Check if super-admin signup is enabled
+    const enableSignup = process.env.ENABLE_SUPER_ADMIN_SIGNUP === "true";
+    if (!enableSignup) {
+      return { success: false, error: "Super-admin signup is disabled" };
+    }
+
+    // Verify invite code
+    const validInviteCode = process.env.SUPER_ADMIN_INVITE_CODE;
+    if (!validInviteCode || data.inviteCode !== validInviteCode) {
+      return { success: false, error: "Invalid invite code" };
+    }
+
+    // Check if email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email.toLowerCase() },
+    });
+
+    if (existingUser) {
+      return { success: false, error: "Email already registered" };
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(data.password, 10);
+
+    // Create super-admin user
+    const user = await prisma.user.create({
+      data: {
+        email: data.email.toLowerCase(),
+        passwordHash,
+        role: "super_admin",
+        organizationId: null,
+      },
+    });
+
+    // Build auth session
+    const authSession: SuperAdminAuthData = {
+      id: user.id,
+      email: user.email,
+      role: "super_admin",
+      organizationId: null,
+    };
+
+    // Set session cookie
+    (await cookies()).set("auth-session", JSON.stringify(authSession), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+
+    return { success: true, user: authSession };
+  } catch (error) {
+    console.error("Super-admin signup error:", error);
     return { success: false, error: "An error occurred during signup" };
   }
 }

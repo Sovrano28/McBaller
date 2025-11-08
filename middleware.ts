@@ -26,6 +26,7 @@ export async function middleware(request: NextRequest) {
     "/login",
     "/signup",
     "/signup/organization",
+    "/super-admin/signup",
     "/api/auth",
   ];
 
@@ -45,6 +46,28 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Super-admin routes - require super_admin role
+  if (pathname.startsWith("/super-admin") && !pathname.startsWith("/super-admin/signup")) {
+    if (session.role !== "super_admin") {
+      // Non-super-admins cannot access super-admin routes
+      if (session.role === "player") {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      } else {
+        return NextResponse.redirect(new URL("/org/dashboard", request.url));
+      }
+    }
+  }
+
+  // Block super-admins from accessing org and player routes
+  if (session.role === "super_admin") {
+    if (pathname.startsWith("/org") || pathname.startsWith("/dashboard") || 
+        pathname.startsWith("/profile") || pathname.startsWith("/stats") || 
+        pathname.startsWith("/training") || pathname.startsWith("/nutrition") || 
+        pathname.startsWith("/injury-prevention") || pathname.startsWith("/analytics")) {
+      return NextResponse.redirect(new URL("/super-admin/dashboard", request.url));
+    }
   }
 
   // Organization routes - require org role

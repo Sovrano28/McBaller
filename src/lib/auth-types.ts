@@ -1,4 +1,4 @@
-export type UserRole = "player" | "org_admin" | "coach" | "finance" | "analyst";
+export type UserRole = "player" | "org_admin" | "coach" | "finance" | "analyst" | "super_admin";
 
 export interface AuthUser {
   id: string;
@@ -26,4 +26,9 @@ export interface OrgAuthData extends AuthUser {
   organizationName?: string;
 }
 
-export type AuthSession = PlayerAuthData | OrgAuthData;
+export interface SuperAdminAuthData extends AuthUser {
+  role: "super_admin";
+  organizationId: null;
+}
+
+export type AuthSession = PlayerAuthData | OrgAuthData | SuperAdminAuthData;
