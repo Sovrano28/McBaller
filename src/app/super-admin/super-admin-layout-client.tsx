@@ -22,6 +22,9 @@ import {
   CheckCircle2,
   LogOut,
   Crown,
+  MessageSquare,
+  UsersRound,
+  UserCog,
 } from "lucide-react";
 import { AppLogo } from "@/components/app-logo";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -62,8 +65,11 @@ export function SuperAdminLayoutClient({ children }: { children: React.ReactNode
       "/super-admin/dashboard",
       "/super-admin/organizations",
       "/super-admin/users",
+      "/super-admin/teams",
+      "/super-admin/agents",
       "/super-admin/players",
       "/super-admin/financial",
+      "/super-admin/communications",
       "/super-admin/moderation",
       "/super-admin/compliance",
       "/super-admin/analytics",
@@ -96,14 +102,20 @@ export function SuperAdminLayoutClient({ children }: { children: React.ReactNode
     // Core Dashboard
     { href: "/super-admin/dashboard", label: "Dashboard", icon: Home, category: "core" },
     
-    // Entity Management
-    { href: "/super-admin/organizations", label: "Organizations", icon: Building2, category: "entities" },
+    // Entity Management (Hierarchical: Users → Organizations → Teams → Agents → Players)
     { href: "/super-admin/users", label: "Users", icon: Users, category: "entities" },
+    { href: "/super-admin/organizations", label: "Organizations", icon: Building2, category: "entities" },
+    { href: "/super-admin/teams", label: "Teams", icon: UsersRound, category: "entities" },
+    { href: "/super-admin/agents", label: "Agents", icon: UserCog, category: "entities" },
     { href: "/super-admin/players", label: "Players", icon: UserRound, category: "entities" },
     
     // Financial
     { href: "/super-admin/financial/invoices", label: "Invoices", icon: Receipt, category: "financial" },
     { href: "/super-admin/financial/subscriptions", label: "Subscriptions", icon: CreditCard, category: "financial" },
+    
+    // Communications
+    { href: "/super-admin/communications", label: "Communications Hub", icon: MessageSquare, category: "communications" },
+    { href: "/super-admin/communications/templates", label: "Message Templates", icon: FileSearch, category: "communications" },
     
     // Moderation
     { href: "/super-admin/moderation/content", label: "Content Moderation", icon: Flag, category: "moderation" },

@@ -37,6 +37,7 @@ model Organization {
   ageGroups        AgeGroup[]
   seasons          Season[]
   announcements    Announcement[]
+  messageTemplates MessageTemplate[]
   assignments      Assignment[]
   media            MediaFile[]
   tournaments      Tournament[]
@@ -445,14 +446,47 @@ model Availability {
 
 model Announcement {
   id             String    @id @default(cuid()) @map("_id")
-  organizationId String
+  organizationId String?   // null for super-admin
   teamId         String? // null = org-wide
   createdById    String // User ID who created it
+  
+  // Basic fields
   title          String
   content        String
+  messageType    String    @default("announcement") // "announcement" | "email" | "whatsapp" | "both"
+  
+  // Recipient configuration
+  recipientType  String    @default("all") // "all" | "selective" | "individual"
+  recipientGroups Json?    // ["organizations", "teams", "agents", "players"]
+  recipientIds   Json?     // Array of specific IDs to target
+  
+  // Email specific
+  emailSubject   String?
+  emailBody      String?
+  
+  // WhatsApp specific
+  whatsappMessage String?
+  whatsappMediaUrl String?
+  
+  // Scheduling & Status
+  scheduledFor   DateTime?
+  status         String    @default("draft") // "draft" | "scheduled" | "sending" | "sent" | "failed"
+  sentAt         DateTime?
+  
+  // Template
+  templateId     String?
+  
+  // Stats
+  totalRecipients Int      @default(0)
+  emailsSent      Int      @default(0)
+  whatsappSent    Int      @default(0)
+  failedCount     Int      @default(0)
+  
+  // Legacy fields (maintain backward compatibility)
   priority       String    @default("normal") // "low" | "normal" | "high" | "urgent"
   sendEmail      Boolean   @default(false)
   sendPush       Boolean   @default(false)
+  sendWhatsApp   Boolean   @default(false)
   targetAudience Json? // ["all", "coaches", "players", "parents"] or specific IDs
   attachments    Json? // Array of file URLs
   expiresAt      DateTime?
@@ -460,14 +494,75 @@ model Announcement {
   updatedAt      DateTime  @updatedAt
 
   // Relations
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   team         Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  template     MessageTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  deliveries   MessageDelivery[]
 
   @@index([organizationId])
   @@index([teamId])
+  @@index([status])
+  @@index([scheduledFor])
   @@index([createdAt])
   @@index([priority])
   @@map("announcements")
+}
+
+model MessageTemplate {
+  id             String   @id @default(cuid()) @map("_id")
+  organizationId String?  // null for super-admin global templates
+  name           String
+  description    String?
+  category       String   @default("general") // "general" | "event" | "payment" | "announcement" | "custom"
+  
+  emailSubject   String?
+  emailBody      String?
+  whatsappMessage String?
+  
+  variables      Json?    // Array of placeholder variables: ["{{name}}", "{{date}}"]
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  announcements Announcement[]
+
+  @@index([organizationId])
+  @@index([category])
+  @@index([isActive])
+  @@map("message_templates")
+}
+
+model MessageDelivery {
+  id             String    @id @default(cuid()) @map("_id")
+  announcementId String
+  recipientId    String    // User/Player/Organization ID
+  recipientType  String    // "user" | "player" | "organization" | "team"
+  recipientEmail String?
+  recipientPhone String?
+  recipientName  String?
+  
+  deliveryType   String    // "email" | "whatsapp"
+  status         String    @default("pending") // "pending" | "sent" | "failed" | "delivered" | "read"
+  
+  sentAt         DateTime?
+  deliveredAt    DateTime?
+  readAt         DateTime?
+  failureReason  String?
+  
+  metadata       Json?     // Additional delivery info
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@index([announcementId])
+  @@index([recipientId])
+  @@index([status])
+  @@index([deliveryType])
+  @@map("message_deliveries")
 }
 
 model Assignment {

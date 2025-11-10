@@ -27,6 +27,7 @@ import {
   FolderOpen,
   FileSearch,
   Megaphone,
+  MessageSquare,
 } from "lucide-react";
 import { AppLogo } from "@/components/app-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -77,6 +78,7 @@ export function OrgLayoutClient({ children }: { children: React.ReactNode }) {
       "/org/analytics",
       "/org/settings",
       "/org/announcements",
+      "/org/communications",
       "/org/assignments",
       "/org/media",
       "/org/seasons",
@@ -106,10 +108,10 @@ export function OrgLayoutClient({ children }: { children: React.ReactNode }) {
 
   // Organized navigation items by category
   const navItems = [
-    // Core Management
+    // Core Management (Hierarchical: Teams → Players)
     { href: "/org/dashboard", label: "Dashboard", icon: Home, category: "core" },
-    { href: "/org/players", label: "Players", icon: Users, category: "core" },
     { href: "/org/teams", label: "Teams", icon: UsersRound, category: "core" },
+    { href: "/org/players", label: "Players", icon: Users, category: "core" },
     { href: "/org/contracts", label: "Contracts", icon: FileText, category: "core" },
     
     // Events & Scheduling
@@ -119,6 +121,8 @@ export function OrgLayoutClient({ children }: { children: React.ReactNode }) {
     { href: "/org/venues", label: "Venues", icon: MapPin, category: "events" },
     
     // Communication
+    { href: "/org/communications", label: "Communications Hub", icon: MessageSquare, category: "communication" },
+    { href: "/org/communications/templates", label: "Message Templates", icon: FileSearch, category: "communication" },
     { href: "/org/announcements", label: "Announcements", icon: Megaphone, category: "communication" },
     { href: "/org/assignments", label: "Assignments", icon: ClipboardList, category: "communication" },
     { href: "/org/media", label: "Media & Files", icon: Image, category: "communication" },
