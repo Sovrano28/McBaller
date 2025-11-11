@@ -31,6 +31,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    outputFileTracingIncludes: {
+      '/*': ['./node_modules/**/*'],
+    },
+  },
 };
 
 export default nextConfig;
