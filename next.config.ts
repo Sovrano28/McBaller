@@ -31,11 +31,21 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    outputFileTracingIncludes: {
-      '/*': ['./node_modules/**/*'],
-    },
+  // Exclude large dependencies from serverless functions to reduce bundle size
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@genkit-ai/**',
+      'node_modules/genkit/**',
+      'node_modules/genkit-cli/**',
+      'node_modules/firebase/**',
+      'node_modules/@firebase/**',
+      'node_modules/prisma/libquery_engine*',
+      'node_modules/prisma/query_engine*',
+      'node_modules/@prisma/engines/**',
+    ],
   },
+  // Keep Prisma external to reduce function size
+  serverExternalPackages: ['prisma', '@prisma/client'],
 };
 
 export default nextConfig;
