@@ -62,6 +62,7 @@ export async function getAllUsers(filters?: {
           lastLoginAt: true,
           organization: {
             select: {
+              id: true,
               name: true,
               type: true,
             },

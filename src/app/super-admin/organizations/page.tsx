@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Building2, Users, UserRound, FileText, Eye } from "lucide-react";
+import { Building2, Users, UserRound, FileText, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 
@@ -156,9 +156,10 @@ export default async function OrganizationsManagementPage() {
                         {format(new Date(org.createdAt), "MMM dd, yyyy")}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/super-admin/organizations/${org.id}`}>
-                            <Eye className="h-4 w-4" />
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/super-admin/organizations/${org.id}`} className="flex items-center gap-2">
+                            <span>View details</span>
+                            <ArrowRight className="h-3 w-3" />
                           </Link>
                         </Button>
                       </TableCell>

@@ -136,6 +136,51 @@ export async function getInvoiceDetails(invoiceId: string) {
   }
 }
 
+export async function getContractDetails(contractId: string) {
+  await verifySuperAdmin();
+
+  try {
+    const contract = await prisma.contract.findUnique({
+      where: { id: contractId },
+      include: {
+        player: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+              },
+            },
+            organization: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            team: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        organization: true,
+        team: true,
+      },
+    });
+
+    if (!contract) {
+      throw new Error("Contract not found");
+    }
+
+    return contract;
+  } catch (error) {
+    console.error("Error fetching contract details:", error);
+    throw new Error("Failed to fetch contract details");
+  }
+}
+
 // Update invoice status
 export async function updateInvoiceStatus(
   invoiceId: string,

@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Receipt, DollarSign, Clock, AlertCircle, Eye } from "lucide-react";
+import { Search, Receipt, DollarSign, Clock, AlertCircle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -72,17 +72,17 @@ export function InvoicesClient() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatsCard
           title="Total Revenue"
-          value={`$${totalRevenue.toLocaleString()}`}
+          value={`₦${totalRevenue.toLocaleString()}`}
           icon={DollarSign}
         />
         <StatsCard
           title="Pending"
-          value={`$${pendingAmount.toLocaleString()}`}
+          value={`₦${pendingAmount.toLocaleString()}`}
           icon={Clock}
         />
         <StatsCard
           title="Overdue"
-          value={`$${overdueAmount.toLocaleString()}`}
+          value={`₦${overdueAmount.toLocaleString()}`}
           icon={AlertCircle}
         />
         <StatsCard
@@ -171,7 +171,7 @@ export function InvoicesClient() {
                         </Link>
                       </TableCell>
                       <TableCell className="font-semibold">
-                        ${Number(invoice.amount).toLocaleString()}
+                        ₦{Number(invoice.amount).toLocaleString()}
                       </TableCell>
                       <TableCell>
                         <StatusBadge status={invoice.status} />
@@ -186,10 +186,15 @@ export function InvoicesClient() {
                           ? format(new Date(invoice.createdAt), "MMM dd, yyyy")
                           : "N/A"}
                       </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            href={`/super-admin/invoices/${invoice.id}`}
+                            className="flex items-center gap-2"
+                          >
+                            <span>View details</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </Link>
                         </Button>
                       </TableCell>
                     </TableRow>

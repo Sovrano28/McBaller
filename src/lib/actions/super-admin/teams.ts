@@ -28,7 +28,12 @@ export async function getAllTeams(filters?: {
     }
 
     if (filters?.status) {
-      where.isActive = filters.status === "active";
+      if (filters.status === "active") {
+        where.players = { some: {} };
+      }
+      if (filters.status === "inactive") {
+        where.players = { none: {} };
+      }
     }
 
     const teams = await prisma.team.findMany({
@@ -44,7 +49,6 @@ export async function getAllTeams(filters?: {
         _count: {
           select: {
             players: true,
-            coaches: true,
           },
         },
       },
@@ -52,14 +56,23 @@ export async function getAllTeams(filters?: {
       take: 100,
     });
 
+    const formattedTeams = teams.map((team) => ({
+      ...team,
+      isActive: team._count.players > 0,
+      _count: {
+        ...team._count,
+        coaches: 0,
+      },
+    }));
+
     await logAction({
       organizationId: null,
       action: "view",
       entityType: "teams",
-      metadata: { count: teams.length, filters },
+      metadata: { count: formattedTeams.length, filters },
     });
 
-    return { success: true, data: teams };
+    return { success: true, data: formattedTeams };
   } catch (error) {
     console.error("Error fetching teams:", error);
     return { success: false, error: "Failed to fetch teams" };
@@ -81,28 +94,65 @@ export async function getTeamById(id: string) {
             id: true,
             name: true,
             logo: true,
-            primaryColor: true,
           },
         },
         players: {
+          orderBy: { name: "asc" },
           include: {
             user: {
               select: {
                 id: true,
                 email: true,
+              },
+            },
+            contracts: {
+              select: {
+                id: true,
+                status: true,
               },
             },
           },
-          take: 50,
         },
-        coaches: {
+        contracts: {
+          orderBy: { startDate: "desc" },
           include: {
-            user: {
+            player: {
               select: {
                 id: true,
-                email: true,
+                name: true,
+                position: true,
+                avatar: true,
               },
             },
+            organization: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            team: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          take: 25,
+        },
+        events: {
+          orderBy: { startTime: "desc" },
+          take: 10,
+        },
+        announcements: {
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        },
+        _count: {
+          select: {
+            players: true,
+            contracts: true,
+            events: true,
+            announcements: true,
           },
         },
       },
@@ -130,7 +180,6 @@ export async function updateTeam(
   id: string,
   data: {
     name?: string;
-    isActive?: boolean;
     logo?: string;
   }
 ) {
@@ -194,7 +243,13 @@ export async function getTeamStats() {
 
     const [total, active, withPlayers] = await Promise.all([
       prisma.team.count(),
-      prisma.team.count({ where: { isActive: true } }),
+      prisma.team.count({
+        where: {
+          players: {
+            some: {},
+          },
+        },
+      }),
       prisma.team.count({
         where: {
           players: {

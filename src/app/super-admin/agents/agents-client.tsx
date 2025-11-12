@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, UserCog, Users, BarChart3, DollarSign, Eye } from "lucide-react";
+import { Search, UserCog, Users, BarChart3, DollarSign, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -203,13 +203,16 @@ export function AgentsClient() {
                           ? new Date(agent.createdAt).toLocaleDateString()
                           : "N/A"}
                       </TableCell>
-                      <TableCell>
-                        <Link href={`/super-admin/agents/${agent.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                        </Link>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            href={`/super-admin/agents/${agent.id}`}
+                            className="flex items-center gap-2"
+                          >
+                            <span>View details</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

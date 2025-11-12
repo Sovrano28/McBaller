@@ -731,6 +731,221 @@ export const posts: Post[] = [
     comments: 31,
     createdAt: "3d ago",
   },
+  {
+    id: "6",
+    player: players[3],
+    content:
+      "Match day vibes! Ready to give my all on the pitch today. Let's go Kaduna United! 💪⚽ #MatchDay #NPFL",
+    media: {
+      type: "image",
+      url: "https://picsum.photos/seed/post6/600/400",
+      hint: "soccer player in uniform",
+    },
+    likes: 312,
+    comments: 24,
+    createdAt: "4d ago",
+  },
+  {
+    id: "7",
+    player: players[4],
+    content:
+      "Clean sheet today! Defense was solid from start to finish. Proud of the team's effort. Rangers International! 🛡️",
+    likes: 289,
+    comments: 19,
+    createdAt: "5d ago",
+  },
+  {
+    id: "8",
+    player: players[0],
+    content:
+      "Recovery session after yesterday's match. Ice baths and stretching are crucial. Taking care of the body is part of the job! 🧊💙",
+    likes: 156,
+    comments: 8,
+    createdAt: "6d ago",
+  },
+  {
+    id: "9",
+    player: players[1],
+    content:
+      "Team meeting with Coach Usman discussing tactics for the upcoming derby. Every detail matters! 📋⚽ #TacticalAnalysis",
+    media: {
+      type: "image",
+      url: "https://picsum.photos/seed/post9/600/500",
+      hint: "soccer tactics board",
+    },
+    likes: 203,
+    comments: 14,
+    createdAt: "1w ago",
+  },
+  {
+    id: "10",
+    player: players[2],
+    content:
+      "Back from injury and feeling stronger than ever! Grateful for the support from teammates and fans. Ready to contribute! 🙏💪",
+    likes: 445,
+    comments: 37,
+    createdAt: "1w ago",
+  },
+  {
+    id: "11",
+    player: players[5],
+    content:
+      "Gym session complete! Building strength for the second half of the season. Consistency is key! 💪🏋️ #FitnessGoals",
+    likes: 178,
+    comments: 11,
+    createdAt: "1w ago",
+  },
+  {
+    id: "12",
+    player: players[6],
+    content:
+      "Three goals, three points! What a way to celebrate Women's Day! Proud to represent women in football! ⚽⚽⚽👑 #WomensFootball",
+    media: {
+      type: "image",
+      url: "https://picsum.photos/seed/post12/600/400",
+      hint: "women soccer celebration",
+    },
+    likes: 623,
+    comments: 52,
+    createdAt: "1w ago",
+  },
+  {
+    id: "13",
+    player: players[3],
+    content:
+      "Youth development program visit today. Inspiring the next generation of Nigerian footballers! The future is bright! 🌟⚽",
+    likes: 267,
+    comments: 18,
+    createdAt: "1w ago",
+  },
+  {
+    id: "14",
+    player: players[4],
+    content:
+      "Video analysis session with the coaching staff. Learning from every game, every save, every moment. Growth mindset! 📹🎯",
+    likes: 134,
+    comments: 7,
+    createdAt: "2w ago",
+  },
+  {
+    id: "15",
+    player: players[0],
+    content:
+      "Scored my 20th goal of the season today! Milestone achieved but the work continues. Thank you to everyone who believed! 🎯⚽",
+    media: {
+      type: "image",
+      url: "https://picsum.photos/seed/post15/600/400",
+      hint: "soccer goal celebration",
+    },
+    likes: 789,
+    comments: 68,
+    createdAt: "2w ago",
+  },
+  {
+    id: "16",
+    player: players[1],
+    content:
+      "Assist king today! Three assists in one match. Creating chances for teammates brings me as much joy as scoring! 🎯⚽",
+    likes: 356,
+    comments: 29,
+    createdAt: "2w ago",
+  },
+  {
+    id: "17",
+    player: players[2],
+    content:
+      "Captain's armband on. Leading by example on and off the pitch. Responsibility accepted! 💪👑 #Leadership",
+    likes: 298,
+    comments: 22,
+    createdAt: "2w ago",
+  },
+  {
+    id: "18",
+    player: players[5],
+    content:
+      "Nutrition plan from McSportng is working wonders! Energy levels are through the roof. Proper fuel for proper performance! 🥗💪",
+    likes: 201,
+    comments: 15,
+    createdAt: "2w ago",
+  },
+  {
+    id: "19",
+    player: players[6],
+    content:
+      "International call-up! Representing Nigeria at the upcoming tournament. Dreams do come true! 🇳🇬⚽ #SuperFalcons",
+    media: {
+      type: "image",
+      url: "https://picsum.photos/seed/post19/600/500",
+      hint: "Nigerian flag and jersey",
+    },
+    likes: 892,
+    comments: 74,
+    createdAt: "3w ago",
+  },
+  {
+    id: "20",
+    player: players[3],
+    content:
+      "Pre-season training has begun! Early mornings, hard work, and dedication. This season will be different! 🔥⚽",
+    likes: 245,
+    comments: 16,
+    createdAt: "3w ago",
+  },
+  {
+    id: "21",
+    player: players[4],
+    content:
+      "Penalty save in the 90th minute! That's what we train for. Moments like these define goalkeepers! 🛡️💪",
+    media: {
+      type: "image",
+      url: "https://picsum.photos/seed/post21/600/400",
+      hint: "goalkeeper saving penalty",
+    },
+    likes: 567,
+    comments: 41,
+    createdAt: "3w ago",
+  },
+  {
+    id: "22",
+    player: players[0],
+    content:
+      "Community outreach today. Giving back to the community that raised me. Football is more than just a game! ❤️⚽",
+    likes: 334,
+    comments: 26,
+    createdAt: "3w ago",
+  },
+  {
+    id: "23",
+    player: players[1],
+    content:
+      "New training equipment arrived! Can't wait to test it out tomorrow. Always improving, always evolving! 🎯💪",
+    likes: 189,
+    comments: 12,
+    createdAt: "4w ago",
+  },
+  {
+    id: "24",
+    player: players[2],
+    content:
+      "Team bonding session after training. These moments off the pitch strengthen our bond on it! Unity is strength! 🤝⚽",
+    media: {
+      type: "image",
+      url: "https://picsum.photos/seed/post24/600/400",
+      hint: "soccer team together",
+    },
+    likes: 278,
+    comments: 20,
+    createdAt: "4w ago",
+  },
+  {
+    id: "25",
+    player: players[5],
+    content:
+      "End of season reflection: Grateful for the journey, the lessons, and the growth. Ready for what's next! Onwards and upwards! 🚀⚽",
+    likes: 412,
+    comments: 33,
+    createdAt: "4w ago",
+  },
 ];
 
 export const trainingPlans: TrainingProgram[] = [

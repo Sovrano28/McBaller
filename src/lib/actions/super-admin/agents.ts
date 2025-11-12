@@ -114,6 +114,12 @@ export async function getAgentById(id: string) {
                     email: true,
                   },
                 },
+                team: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
               take: 20,
             },

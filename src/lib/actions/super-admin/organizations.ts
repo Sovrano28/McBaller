@@ -81,6 +81,7 @@ export async function getOrganizationDetails(organizationId: string) {
       where: { id: organizationId },
       include: {
         teams: {
+          orderBy: { createdAt: "desc" },
           include: {
             _count: {
               select: { players: true },
@@ -95,6 +96,7 @@ export async function getOrganizationDetails(organizationId: string) {
             createdAt: true,
             lastLoginAt: true,
           },
+          orderBy: { createdAt: "desc" },
         },
         players: {
           select: {
@@ -102,8 +104,10 @@ export async function getOrganizationDetails(organizationId: string) {
             name: true,
             username: true,
             subscriptionTier: true,
-            createdAt: true,
+            joinedAt: true,
+            teamId: true,
           },
+          orderBy: { joinedAt: "desc" },
         },
         contracts: {
           where: { status: "active" },
@@ -115,9 +119,11 @@ export async function getOrganizationDetails(organizationId: string) {
             player: {
               select: {
                 name: true,
+                id: true,
               },
             },
           },
+          orderBy: { startDate: "desc" },
         },
         invoices: {
           orderBy: { createdAt: "desc" },
@@ -140,6 +146,21 @@ export async function getOrganizationDetails(organizationId: string) {
             invoices: true,
             events: true,
             announcements: true,
+          },
+        },
+        auditLogs: {
+          orderBy: { createdAt: "desc" },
+          take: 20,
+          select: {
+            id: true,
+            action: true,
+            entityType: true,
+            entityId: true,
+            metadata: true,
+            createdAt: true,
+            user: {
+              select: { email: true },
+            },
           },
         },
       },

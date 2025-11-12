@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Users, UserCog, UserRound, Building2, Eye } from "lucide-react";
+import { Search, Users, UserCog, UserRound, Building2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -63,16 +63,7 @@ export function UsersClient() {
     super_admin: "bg-red-100 text-red-800",
   };
 
-  const getDetailLink = (user: any) => {
-    if (user.role === "player") {
-      return `/super-admin/players/${user.player?.id || user.id}`;
-    } else if (user.role === "org_admin") {
-      return `/super-admin/organizations/${user.organizationId}`;
-    } else if (["coach", "analyst", "finance"].includes(user.role)) {
-      return `/super-admin/agents/${user.id}`;
-    }
-    return `/super-admin/users/${user.id}`;
-  };
+  const getDetailLink = (user: any) => `/super-admin/users/${user.id}`;
 
   return (
     <div className="space-y-6">
@@ -183,6 +174,12 @@ export function UsersClient() {
                             {user.player && (
                               <div className="text-xs text-muted-foreground">
                                 {user.player.name} (@{user.player.username})
+                                <Link
+                                  href={`/super-admin/players/${user.player.id}`}
+                                  className="ml-2 text-blue-600 hover:text-blue-800"
+                                >
+                                  Player profile
+                                </Link>
                               </div>
                             )}
                           </div>
@@ -197,7 +194,7 @@ export function UsersClient() {
                         {user.organization ? (
                           <Link
                             href={`/super-admin/organizations/${user.organization.id}`}
-                            className="text-blue-600 hover:underline"
+                            className="text-blue-600 hover:text-blue-800"
                           >
                             {user.organization.name}
                           </Link>
@@ -215,13 +212,16 @@ export function UsersClient() {
                           ? format(new Date(user.createdAt), "MMM dd, yyyy")
                           : "N/A"}
                       </TableCell>
-                      <TableCell>
-                        <Link href={getDetailLink(user)}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                        </Link>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            href={getDetailLink(user)}
+                            className="flex items-center gap-2"
+                          >
+                            <span>View details</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
