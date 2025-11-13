@@ -105,8 +105,10 @@ export async function getOrganizationPlayers(organizationId: string) {
     include: {
       user: {
         select: {
+          id: true,
           email: true,
           role: true,
+          isActive: true,
         },
       },
       team: {
@@ -159,8 +161,10 @@ export async function getOrganizationPlayer(
     include: {
       user: {
         select: {
+          id: true,
           email: true,
           role: true,
+          isActive: true,
         },
       },
       team: {
@@ -314,4 +318,73 @@ export async function getOrganizationTeam(
   }
 
   return team;
+}
+
+export async function togglePlayerStatus(playerId: string, suspend: boolean) {
+  const session = await getSession();
+  if (!session || session.role === "player") {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  const orgSession = session as OrgAuthData;
+  if (!orgSession.organizationId) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    // Verify player belongs to organization
+    const player = await prisma.player.findFirst({
+      where: {
+        id: playerId,
+        organizationId: orgSession.organizationId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            isActive: true,
+          },
+        },
+      },
+    });
+
+    if (!player) {
+      return { success: false, error: "Player not found or doesn't belong to organization" };
+    }
+
+    // Update user's isActive status
+    const user = await prisma.user.update({
+      where: { id: player.user.id },
+      data: {
+        isActive: !suspend, // suspend=true means isActive=false
+        updatedAt: new Date(),
+      },
+    });
+
+    // Log action (if audit logger exists)
+    try {
+      const { logAction } = await import("@/lib/audit-logger");
+      await logAction({
+        organizationId: orgSession.organizationId,
+        action: suspend ? "deactivate" : "activate",
+        entityType: "player",
+        entityId: playerId,
+        metadata: {
+          playerName: player.name,
+          playerEmail: user.email,
+          previousStatus: suspend ? "active" : "inactive",
+          newStatus: suspend ? "inactive" : "active",
+        },
+      });
+    } catch (error) {
+      // Audit logging is optional, continue even if it fails
+      console.warn("Failed to log action:", error);
+    }
+
+    return { success: true, suspended: suspend, user };
+  } catch (error: any) {
+    console.error("Error toggling player status:", error);
+    return { success: false, error: "Failed to toggle player status" };
+  }
 }

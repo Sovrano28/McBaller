@@ -5,8 +5,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar as CalendarIcon, MapPin, Clock, Users, RefreshCw } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, MapPin, Clock, Users, RefreshCw, Building2 } from "lucide-react";
 import Link from "next/link";
+import { format } from "date-fns";
 
 export default async function CalendarPage() {
   const session = await getSession();
@@ -125,16 +126,27 @@ export default async function CalendarPage() {
                         <Clock className="h-3 w-3" />
                         {formatDateTime(event.startTime)}
                       </div>
-                      {event.location && (
+                      {event.venue ? (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {event.venue.name}
+                          {event.venue.address && ` - ${event.venue.address}`}
+                        </div>
+                      ) : event.location && (
                         <div className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
                           {event.location}
                         </div>
                       )}
-                      {event.team && (
+                      {event.team ? (
                         <div className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
                           {event.team.name}
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          Organization-wide
                         </div>
                       )}
                     </div>

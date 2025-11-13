@@ -29,6 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Building2, UserRound, FileText } from "lucide-react";
+import { UserStatusButton } from "@/components/super-admin/user-status-button";
 
 export default async function SuperAdminUserDetailPage({
   params,
@@ -86,13 +87,28 @@ export default async function SuperAdminUserDetailPage({
         <TabsContent value="overview">
           <Card>
             <CardHeader>
-              <CardTitle>User Details</CardTitle>
-              <CardDescription>Core account information</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>User Details</CardTitle>
+                  <CardDescription>Core account information</CardDescription>
+                </div>
+                <UserStatusButton
+                  userId={user.id}
+                  isActive={user.isActive ?? true}
+                  userEmail={user.email}
+                />
+              </div>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2 text-sm">
               <div>
                 <p className="text-muted-foreground">Email</p>
                 <p>{user.email}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground">Status</p>
+                <Badge variant={user.isActive === false ? "destructive" : "default"}>
+                  {user.isActive === false ? "Inactive" : "Active"}
+                </Badge>
               </div>
               <div>
                 <p className="text-muted-foreground">Last Login</p>

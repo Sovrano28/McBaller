@@ -270,3 +270,280 @@ export async function getCriticalAlerts() {
   }
 }
 
+// Get platform engagement metrics
+export async function getPlatformEngagement(days: number = 30) {
+  await verifySuperAdmin();
+
+  try {
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const [
+      activeUsers,
+      postsCreated,
+      trainingCompletions,
+      loginFrequency,
+    ] = await Promise.all([
+      // Active users (logged in within period)
+      prisma.user.count({
+        where: {
+          lastLoginAt: {
+            gte: startDate,
+          },
+        },
+      }),
+      // Posts created
+      prisma.post.count({
+        where: {
+          createdAt: { gte: startDate },
+        },
+      }),
+      // Training completions
+      prisma.trainingProgress.count({
+        where: {
+          completedAt: {
+            gte: startDate,
+          },
+        },
+      }),
+      // Login frequency (total logins)
+      prisma.user.count({
+        where: {
+          lastLoginAt: {
+            gte: startDate,
+          },
+        },
+      }),
+    ]);
+
+    return {
+      activeUsers,
+      postsCreated,
+      trainingCompletions,
+      loginFrequency,
+    };
+  } catch (error) {
+    console.error("Error fetching platform engagement:", error);
+    throw new Error("Failed to fetch platform engagement");
+  }
+}
+
+// Get financial analytics
+export async function getFinancialAnalytics(days: number = 30) {
+  await verifySuperAdmin();
+
+  try {
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const previousPeriodStart = new Date(startDate.getTime() - days * 24 * 60 * 60 * 1000);
+
+    const [
+      currentRevenue,
+      previousRevenue,
+      revenueByStatus,
+      subscriptionDistribution,
+      topOrganizations,
+    ] = await Promise.all([
+      // Current period revenue
+      prisma.invoice.aggregate({
+        where: {
+          status: "paid",
+          paidAt: { gte: startDate },
+        },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      // Previous period revenue
+      prisma.invoice.aggregate({
+        where: {
+          status: "paid",
+          paidAt: {
+            gte: previousPeriodStart,
+            lt: startDate,
+          },
+        },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      // Revenue by status
+      prisma.invoice.groupBy({
+        by: ["status"],
+        where: { createdAt: { gte: startDate } },
+        _sum: { amount: true },
+        _count: true,
+      }),
+      // Subscription distribution
+      prisma.player.groupBy({
+        by: ["subscriptionTier"],
+        _count: true,
+      }),
+      // Top organizations by revenue
+      prisma.invoice.groupBy({
+        by: ["organizationId"],
+        where: {
+          status: "paid",
+          paidAt: { gte: startDate },
+        },
+        _sum: { amount: true },
+        orderBy: { _sum: { amount: "desc" } },
+        take: 10,
+      }),
+    ]);
+
+    const revenueGrowth = previousRevenue._sum.amount && previousRevenue._sum.amount > 0
+      ? ((currentRevenue._sum.amount || 0) - previousRevenue._sum.amount) / previousRevenue._sum.amount * 100
+      : 0;
+
+    return {
+      currentRevenue: currentRevenue._sum.amount || 0,
+      previousRevenue: previousRevenue._sum.amount || 0,
+      revenueGrowth,
+      transactionCount: currentRevenue._count,
+      revenueByStatus,
+      subscriptionDistribution,
+      topOrganizations,
+    };
+  } catch (error) {
+    console.error("Error fetching financial analytics:", error);
+    throw new Error("Failed to fetch financial analytics");
+  }
+}
+
+// Get user activity metrics
+export async function getUserActivityMetrics(days: number = 30) {
+  await verifySuperAdmin();
+
+  try {
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const [
+      totalLogins,
+      uniqueLogins,
+      averageLoginsPerUser,
+      mostActiveUsers,
+    ] = await Promise.all([
+      // Total login count (users who logged in)
+      prisma.user.count({
+        where: {
+          lastLoginAt: { gte: startDate },
+        },
+      }),
+      // Unique users who logged in
+      prisma.user.count({
+        where: {
+          lastLoginAt: { gte: startDate },
+        },
+        distinct: ["id"],
+      }),
+      // Average logins (simplified - count of users with logins)
+      prisma.user.count({
+        where: {
+          lastLoginAt: { gte: startDate },
+        },
+      }),
+      // Most active users (by last login)
+      prisma.user.findMany({
+        where: {
+          lastLoginAt: { gte: startDate },
+        },
+        select: {
+          id: true,
+          email: true,
+          lastLoginAt: true,
+          role: true,
+        },
+        orderBy: { lastLoginAt: "desc" },
+        take: 10,
+      }),
+    ]);
+
+    return {
+      totalLogins,
+      uniqueLogins,
+      averageLoginsPerUser: uniqueLogins > 0 ? totalLogins / uniqueLogins : 0,
+      mostActiveUsers,
+    };
+  } catch (error) {
+    console.error("Error fetching user activity metrics:", error);
+    throw new Error("Failed to fetch user activity metrics");
+  }
+}
+
+// Calculate growth rate
+export async function getGrowthMetrics(days: number = 30) {
+  await verifySuperAdmin();
+
+  try {
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    const previousPeriodStart = new Date(startDate.getTime() - days * 24 * 60 * 60 * 1000);
+
+    const [
+      currentOrgs,
+      previousOrgs,
+      currentUsers,
+      previousUsers,
+      currentPlayers,
+      previousPlayers,
+    ] = await Promise.all([
+      prisma.organization.count({
+        where: { createdAt: { gte: startDate } },
+      }),
+      prisma.organization.count({
+        where: {
+          createdAt: {
+            gte: previousPeriodStart,
+            lt: startDate,
+          },
+        },
+      }),
+      prisma.user.count({
+        where: { createdAt: { gte: startDate } },
+      }),
+      prisma.user.count({
+        where: {
+          createdAt: {
+            gte: previousPeriodStart,
+            lt: startDate,
+          },
+        },
+      }),
+      prisma.player.count({
+        where: { joinedAt: { gte: startDate } },
+      }),
+      prisma.player.count({
+        where: {
+          joinedAt: {
+            gte: previousPeriodStart,
+            lt: startDate,
+          },
+        },
+      }),
+    ]);
+
+    const orgGrowthRate = previousOrgs > 0
+      ? ((currentOrgs - previousOrgs) / previousOrgs) * 100
+      : currentOrgs > 0 ? 100 : 0;
+
+    const userGrowthRate = previousUsers > 0
+      ? ((currentUsers - previousUsers) / previousUsers) * 100
+      : currentUsers > 0 ? 100 : 0;
+
+    const playerGrowthRate = previousPlayers > 0
+      ? ((currentPlayers - previousPlayers) / previousPlayers) * 100
+      : currentPlayers > 0 ? 100 : 0;
+
+    return {
+      organizationGrowthRate: orgGrowthRate,
+      userGrowthRate,
+      playerGrowthRate,
+      currentOrganizations: currentOrgs,
+      previousOrganizations: previousOrgs,
+      currentUsers,
+      previousUsers,
+      currentPlayers,
+      previousPlayers,
+    };
+  } catch (error) {
+    console.error("Error fetching growth metrics:", error);
+    throw new Error("Failed to fetch growth metrics");
+  }
+}
+

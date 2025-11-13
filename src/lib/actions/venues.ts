@@ -56,6 +56,7 @@ export async function getOrganizationVenues(organizationId: string) {
         select: {
           bookings: true,
           fixtures: true,
+          events: true,
         },
       },
     },
@@ -97,5 +98,52 @@ export async function getVenue(id: string) {
   }
 
   return venue;
+}
+
+export async function getVenueEvents(venueId: string, organizationId: string) {
+  const session = await getSession();
+  if (!session || session.role === "player") {
+    throw new Error("Unauthorized");
+  }
+
+  const orgSession = session as OrgAuthData;
+  if (orgSession.organizationId !== organizationId) {
+    throw new Error("Forbidden");
+  }
+
+  // Verify venue belongs to organization
+  const venue = await prisma.venue.findFirst({
+    where: {
+      id: venueId,
+      organizationId,
+    },
+  });
+
+  if (!venue) {
+    throw new Error("Venue not found");
+  }
+
+  return prisma.event.findMany({
+    where: {
+      venueId,
+      organizationId,
+      startTime: {
+        gte: new Date(), // Only future events
+      },
+      status: "scheduled",
+    },
+    include: {
+      team: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+    take: 20,
+  });
 }
 

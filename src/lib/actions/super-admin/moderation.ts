@@ -17,6 +17,7 @@ export async function getAllPosts(filters?: {
   playerId?: string;
   search?: string;
   hasMedia?: boolean;
+  isFlagged?: boolean;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   limit?: number;
@@ -37,6 +38,10 @@ export async function getAllPosts(filters?: {
       } else {
         where.mediaUrl = null;
       }
+    }
+
+    if (filters?.isFlagged !== undefined) {
+      where.isFlagged = filters.isFlagged;
     }
 
     if (filters?.search) {
@@ -78,6 +83,54 @@ export async function getAllPosts(filters?: {
   } catch (error) {
     console.error("Error fetching posts:", error);
     throw new Error("Failed to fetch posts");
+  }
+}
+
+// Flag post as inappropriate
+export async function flagPost(postId: string, reason: string) {
+  await verifySuperAdmin();
+
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: {
+        player: {
+          select: {
+            name: true,
+            username: true,
+          },
+        },
+      },
+    });
+
+    if (!post) {
+      return { success: false, error: "Post not found" };
+    }
+
+    await prisma.post.update({
+      where: { id: postId },
+      data: {
+        isFlagged: true,
+        flaggedReason: reason,
+      },
+    });
+
+    // Log flagging action
+    await logAction({
+      action: "flag",
+      entityType: "post",
+      entityId: postId,
+      metadata: {
+        reason,
+        playerName: post.player.name,
+        content: post.content.substring(0, 100),
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error flagging post:", error);
+    return { success: false, error: "Failed to flag post" };
   }
 }
 

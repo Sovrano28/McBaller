@@ -9,7 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Flag } from "lucide-react";
+import { PostModerationActions } from "@/components/super-admin/post-moderation-actions";
+import { format } from "date-fns";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default async function ContentModerationPage() {
   const session = await getSession();
@@ -18,9 +21,13 @@ export default async function ContentModerationPage() {
     redirect("/login");
   }
 
-  const { posts, total } = await getAllPosts({
-    limit: 50,
-  }).catch(() => ({ posts: [], total: 0 }));
+  const [allPosts, flaggedPosts] = await Promise.all([
+    getAllPosts({ limit: 100 }).catch(() => ({ posts: [], total: 0 })),
+    getAllPosts({ isFlagged: true, limit: 100 }).catch(() => ({
+      posts: [],
+      total: 0,
+    })),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -31,43 +38,188 @@ export default async function ContentModerationPage() {
             Review and moderate user-generated content
           </p>
         </div>
-        <Badge variant="secondary" className="text-sm">
-          Total Posts: {total}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-sm">
+            Total Posts: {allPosts.total}
+          </Badge>
+          {flaggedPosts.total > 0 && (
+            <Badge variant="destructive" className="text-sm">
+              Flagged: {flaggedPosts.total}
+            </Badge>
+          )}
+        </div>
       </div>
+
+      {flaggedPosts.posts.length > 0 && (
+        <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/20">
+          <CardHeader>
+            <CardTitle className="text-red-900 dark:text-red-100">
+              Flagged Posts ({flaggedPosts.total})
+            </CardTitle>
+            <CardDescription>
+              Posts that have been flagged as inappropriate
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {flaggedPosts.posts.map((post) => (
+                <div
+                  key={post.id}
+                  className="rounded-lg border border-red-200 bg-white dark:bg-gray-900 p-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage
+                            src={post.player.avatar || undefined}
+                            alt={post.player.name}
+                          />
+                          <AvatarFallback>
+                            {post.player.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <Link
+                            href={`/super-admin/players/${post.playerId}`}
+                            className="font-medium text-sm hover:underline text-blue-600"
+                          >
+                            {post.player.name}
+                          </Link>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            @{post.player.username}
+                          </span>
+                          {post.player.organization && (
+                            <span className="text-xs text-muted-foreground ml-2">
+                              • {post.player.organization.name}
+                            </span>
+                          )}
+                        </div>
+                        <Badge variant="destructive" className="ml-auto">
+                          Flagged
+                        </Badge>
+                      </div>
+                      <p className="text-sm mb-2">{post.content}</p>
+                      {post.flaggedReason && (
+                        <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/20 rounded text-xs">
+                          <p className="font-medium text-red-900 dark:text-red-100">
+                            Flag Reason:
+                          </p>
+                          <p className="text-red-700 dark:text-red-300">
+                            {post.flaggedReason}
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                        {post.mediaUrl && (
+                          <Badge variant="outline" className="text-xs">
+                            {post.mediaType}
+                          </Badge>
+                        )}
+                        <span>
+                          {post.likes} likes • {post.comments} comments
+                        </span>
+                        <span>
+                          {format(new Date(post.createdAt), "PPp")}
+                        </span>
+                      </div>
+                    </div>
+                    <PostModerationActions
+                      postId={post.id}
+                      isFlagged={post.isFlagged || false}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
           <CardTitle>All Posts</CardTitle>
           <CardDescription>
-            Player posts and content for moderation
+            Player posts and content for moderation ({allPosts.total} total)
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {posts.length === 0 ? (
+            {allPosts.posts.length === 0 ? (
               <p className="text-sm text-muted-foreground">No posts found</p>
             ) : (
-              posts.slice(0, 20).map((post) => (
-                <div key={post.id} className="rounded-lg border p-4">
-                  <div className="flex items-start justify-between">
+              allPosts.posts.map((post) => (
+                <div
+                  key={post.id}
+                  className={`rounded-lg border p-4 ${
+                    post.isFlagged
+                      ? "border-red-200 bg-red-50/50 dark:bg-red-950/20"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <p className="font-medium text-sm">{post.player.name}</p>
-                        <span className="text-xs text-muted-foreground">
-                          @{post.player.username}
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage
+                            src={post.player.avatar || undefined}
+                            alt={post.player.name}
+                          />
+                          <AvatarFallback>
+                            {post.player.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <Link
+                            href={`/super-admin/players/${post.playerId}`}
+                            className="font-medium text-sm hover:underline text-blue-600"
+                          >
+                            {post.player.name}
+                          </Link>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            @{post.player.username}
+                          </span>
+                          {post.player.organization && (
+                            <span className="text-xs text-muted-foreground ml-2">
+                              • {post.player.organization.name}
+                            </span>
+                          )}
+                        </div>
+                        {post.isFlagged && (
+                          <Badge variant="destructive" className="ml-auto">
+                            Flagged
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm mb-2">{post.content}</p>
+                      {post.flaggedReason && (
+                        <div className="mt-2 p-2 bg-red-100 dark:bg-red-900/20 rounded text-xs">
+                          <p className="font-medium text-red-900 dark:text-red-100">
+                            Flag Reason:
+                          </p>
+                          <p className="text-red-700 dark:text-red-300">
+                            {post.flaggedReason}
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                        {post.mediaUrl && (
+                          <Badge variant="outline" className="text-xs">
+                            {post.mediaType}
+                          </Badge>
+                        )}
+                        <span>
+                          {post.likes} likes • {post.comments} comments
+                        </span>
+                        <span>
+                          {format(new Date(post.createdAt), "PPp")}
                         </span>
                       </div>
-                      <p className="text-sm">{post.content}</p>
-                      {post.mediaUrl && (
-                        <Badge variant="outline" className="mt-2">
-                          {post.mediaType}
-                        </Badge>
-                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Flag className="h-4 w-4 text-muted-foreground cursor-pointer hover:text-red-600" />
-                    </div>
+                    <PostModerationActions
+                      postId={post.id}
+                      isFlagged={post.isFlagged || false}
+                    />
                   </div>
                 </div>
               ))

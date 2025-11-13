@@ -13,6 +13,7 @@ export interface CreateEventData {
   location?: string;
   isAllDay?: boolean;
   teamId?: string;
+  venueId?: string;
   attendees?: any[];
   reminders?: any[];
 }
@@ -80,6 +81,13 @@ export async function getOrganizationEvents(
           slug: true,
         },
       },
+      venue: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+        },
+      },
     },
     orderBy: {
       startTime: "asc",
@@ -111,6 +119,13 @@ export async function getEvent(organizationId: string, eventId: string) {
           id: true,
           name: true,
           slug: true,
+        },
+      },
+      venue: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
         },
       },
     },
@@ -155,6 +170,23 @@ export async function createEvent(
       }
     }
 
+    // Validate venue belongs to organization if provided
+    if (data.venueId) {
+      const venue = await prisma.venue.findFirst({
+        where: {
+          id: data.venueId,
+          organizationId,
+        },
+      });
+
+      if (!venue) {
+        return {
+          success: false,
+          error: "Venue not found or doesn't belong to organization",
+        };
+      }
+    }
+
     const event = await prisma.event.create({
       data: {
         organizationId,
@@ -163,9 +195,10 @@ export async function createEvent(
         type: data.type,
         startTime: data.startTime,
         endTime: data.endTime,
-        location: data.location,
+        location: data.venueId ? undefined : data.location, // Use venue address if venue selected
         isAllDay: data.isAllDay || false,
         teamId: data.teamId || null,
+        venueId: data.venueId || null,
         attendees: data.attendees || null,
         reminders: data.reminders || null,
       },
@@ -232,6 +265,23 @@ export async function updateEvent(
       }
     }
 
+    // Validate venue if provided
+    if (data.venueId) {
+      const venue = await prisma.venue.findFirst({
+        where: {
+          id: data.venueId,
+          organizationId,
+        },
+      });
+
+      if (!venue) {
+        return {
+          success: false,
+          error: "Venue not found or doesn't belong to organization",
+        };
+      }
+    }
+
     const event = await prisma.event.update({
       where: { id: eventId },
       data: {
@@ -240,12 +290,13 @@ export async function updateEvent(
         type: data.type,
         startTime: data.startTime,
         endTime: data.endTime,
-        location: data.location,
+        location: data.venueId ? undefined : data.location,
         isAllDay: data.isAllDay,
         status: data.status,
         recurringType: data.recurringType,
         recurringEnd: data.recurringEnd,
         teamId: data.teamId,
+        venueId: data.venueId,
         attendees: data.attendees,
         reminders: data.reminders,
         externalId: data.externalId,

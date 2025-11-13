@@ -43,8 +43,13 @@ export default function SuperAdminSignupPage() {
       return;
     }
 
-    if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(formData.password)) {
+      setError(
+        "Password must be at least 8 characters long and include uppercase and lowercase letters, a number, and a symbol."
+      );
       return;
     }
 
@@ -139,6 +144,9 @@ export default function SuperAdminSignupPage() {
                 autoComplete="new-password"
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                Must include uppercase, lowercase, number, and special character
+              </p>
             </div>
 
             <div className="space-y-2">

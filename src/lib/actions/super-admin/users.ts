@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/actions/auth";
+import { logAction } from "@/lib/audit-logger";
 import bcrypt from "bcrypt";
 
 async function verifySuperAdmin() {
@@ -199,16 +200,26 @@ export async function toggleUserStatus(userId: string, suspend: boolean) {
   await verifySuperAdmin();
 
   try {
-    // Note: You might want to add a 'status' field to the User model
-    // For now, we'll just update the updatedAt field
-    // In a production app, you'd want to add a status field
-    
-    await prisma.user.update({
+    const user = await prisma.user.update({
       where: { id: userId },
-      data: { updatedAt: new Date() },
+      data: { 
+        isActive: !suspend, // suspend=true means isActive=false
+        updatedAt: new Date() 
+      },
     });
 
-    return { success: true, suspended: suspend };
+    await logAction({
+      action: suspend ? "deactivate" : "activate",
+      entityType: "user",
+      entityId: userId,
+      metadata: {
+        email: user.email,
+        previousStatus: suspend ? "active" : "inactive",
+        newStatus: suspend ? "inactive" : "active",
+      },
+    });
+
+    return { success: true, suspended: suspend, user };
   } catch (error) {
     console.error("Error toggling user status:", error);
     return { success: false, error: "Failed to toggle user status" };

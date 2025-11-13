@@ -71,11 +71,15 @@ export default function CreatePlayerForm({
       return;
     }
 
-    if (formData.password.length < 6) {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(formData.password)) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Password must be at least 6 characters",
+        title: "Weak Password",
+        description:
+          "Password must be at least 8 characters long and include uppercase and lowercase letters, a number, and a symbol.",
       });
       setIsLoading(false);
       return;
@@ -227,14 +231,17 @@ export default function CreatePlayerForm({
                   <Input
                     id="password"
                     type="password"
-                    placeholder="Minimum 6 characters"
+                    placeholder="Minimum 8 characters"
                     value={formData.password}
                     onChange={e =>
                       setFormData({ ...formData, password: e.target.value })
                     }
                     required
-                    minLength={6}
+                    minLength={8}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Must include uppercase, lowercase, number, and special character
+                  </p>
                 </div>
 
                 <div className="grid gap-2">
@@ -253,7 +260,7 @@ export default function CreatePlayerForm({
                       })
                     }
                     required
-                    minLength={6}
+                    minLength={8}
                   />
                 </div>
               </div>

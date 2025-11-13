@@ -51,7 +51,7 @@ export default function DashboardLoading() {
           <Skeleton className="h-4 w-56" />
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-4">
+          <div className="grid gap-3 md:grid-cols-2 [1234px]:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <Skeleton key={i} className="h-10 w-full" />
             ))}
@@ -61,4 +61,3 @@ export default function DashboardLoading() {
     </div>
   );
 }
-

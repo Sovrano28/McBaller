@@ -4,7 +4,7 @@ import { redirect, notFound } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Calendar as CalendarIcon, MapPin, Clock, Users, FileText } from "lucide-react";
+import { ArrowLeft, Edit, Calendar as CalendarIcon, MapPin, Clock, Users, FileText, Building2 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import EventActions from "./event-actions";
@@ -109,7 +109,20 @@ export default async function EventDetailPage({
                 </div>
               </div>
 
-              {event.location && (
+              {event.venue ? (
+                <div>
+                  <h3 className="mb-2 flex items-center gap-2 text-sm font-medium">
+                    <MapPin className="h-4 w-4" />
+                    Venue
+                  </h3>
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium">{event.venue.name}</p>
+                    {event.venue.address && (
+                      <p className="text-xs mt-1">{event.venue.address}</p>
+                    )}
+                  </div>
+                </div>
+              ) : event.location && (
                 <div>
                   <h3 className="mb-2 flex items-center gap-2 text-sm font-medium">
                     <MapPin className="h-4 w-4" />
@@ -119,15 +132,15 @@ export default async function EventDetailPage({
                 </div>
               )}
 
-              {event.team && (
-                <div>
-                  <h3 className="mb-2 flex items-center gap-2 text-sm font-medium">
-                    <Users className="h-4 w-4" />
-                    Team
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{event.team.name}</p>
-                </div>
-              )}
+              <div>
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-medium">
+                  {event.team ? <Users className="h-4 w-4" /> : <Building2 className="h-4 w-4" />}
+                  Created By
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {event.team ? event.team.name : "Organization"}
+                </p>
+              </div>
             </CardContent>
           </Card>
 

@@ -1,4 +1,4 @@
-import { getOrganizationVenues } from "@/lib/actions/venues";
+import { getOrganizationVenues, getVenueEvents } from "@/lib/actions/venues";
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 import type { OrgAuthData } from "@/lib/auth-types";
@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Plus } from "lucide-react";
+import { MapPin, Plus, Calendar, Clock } from "lucide-react";
+import { format } from "date-fns";
 
 export default async function VenuesPage() {
   const session = await getSession();
@@ -29,6 +30,17 @@ export default async function VenuesPage() {
   const venues = await getOrganizationVenues(
     orgSession.organizationId
   ).catch(() => []);
+
+  // Get events for each venue
+  const venuesWithEvents = await Promise.all(
+    venues.map(async (venue) => {
+      const events = await getVenueEvents(
+        venue.id,
+        orgSession.organizationId
+      ).catch(() => []);
+      return { ...venue, events };
+    })
+  );
 
   return (
     <div className="space-y-6">
@@ -65,7 +77,7 @@ export default async function VenuesPage() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {venues.map((venue) => (
+          {venuesWithEvents.map((venue) => (
             <Card key={venue.id}>
               <CardHeader>
                 <CardTitle>{venue.name}</CardTitle>
@@ -98,8 +110,49 @@ export default async function VenuesPage() {
                     <span>{venue._count.bookings} bookings</span>
                     <span>•</span>
                     <span>{venue._count.fixtures} fixtures</span>
+                    <span>•</span>
+                    <span>{venue._count.events} events</span>
                   </div>
                 </div>
+                {venue.events && venue.events.length > 0 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">
+                      Upcoming Events:
+                    </p>
+                    <div className="space-y-2">
+                      {venue.events.slice(0, 3).map((event: any) => (
+                        <div
+                          key={event.id}
+                          className="flex items-center justify-between text-xs p-2 bg-muted rounded"
+                        >
+                          <div className="flex-1">
+                            <p className="font-medium">{event.title}</p>
+                            <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                              <Clock className="h-3 w-3" />
+                              <span>
+                                {format(new Date(event.startTime), "MMM d, h:mm a")}
+                              </span>
+                              {event.team && (
+                                <>
+                                  <span>•</span>
+                                  <span>{event.team.name}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="ml-2 capitalize text-xs">
+                            {event.type}
+                          </Badge>
+                        </div>
+                      ))}
+                      {venue.events.length > 3 && (
+                        <p className="text-xs text-muted-foreground text-center">
+                          +{venue.events.length - 3} more events
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="mt-4">
                   <Button variant="outline" size="sm" asChild>
                     <Link href={`/org/venues/${venue.id}`}>

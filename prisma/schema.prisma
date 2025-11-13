@@ -92,6 +92,7 @@ model User {
   passwordHash   String
   role           String // "player" | "org_admin" | "coach" | "finance" | "analyst"
   organizationId String?
+  isActive       Boolean   @default(true)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   lastLoginAt    DateTime?
@@ -285,21 +286,24 @@ model TrainingProgress {
 }
 
 model Post {
-  id        String   @id @default(cuid()) @map("_id")
-  playerId  String
-  content   String
-  mediaType String? // "image" | "video" | null
-  mediaUrl  String?
-  likes     Int      @default(0)
-  comments  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid()) @map("_id")
+  playerId      String
+  content       String
+  mediaType     String? // "image" | "video" | null
+  mediaUrl      String?
+  likes         Int      @default(0)
+  comments      Int      @default(0)
+  isFlagged     Boolean  @default(false)
+  flaggedReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
   player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@index([playerId])
   @@index([createdAt])
+  @@index([isFlagged])
   @@map("posts")
 }
 
@@ -307,6 +311,7 @@ model Event {
   id             String    @id @default(cuid()) @map("_id")
   organizationId String
   teamId         String?
+  venueId        String?
   title          String
   description    String?
   type           String // "practice" | "game" | "tournament" | "meeting"
@@ -326,6 +331,7 @@ model Event {
   // Relations
   organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   team           Team?          @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  venue          Venue?         @relation(fields: [venueId], references: [id], onDelete: SetNull)
   availabilities Availability[]
   attendances    Attendance[]
   venueBookings  VenueBooking[] @relation("EventVenueBookings")
@@ -333,6 +339,7 @@ model Event {
 
   @@index([organizationId])
   @@index([teamId])
+  @@index([venueId])
   @@index([startTime])
   @@index([type])
   @@index([status])
@@ -706,6 +713,7 @@ model Venue {
   organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   bookings     VenueBooking[]
   fixtures     Fixture[]
+  events       Event[]
 
   @@index([organizationId])
   @@index([isActive])

@@ -24,6 +24,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { format } from "date-fns";
+import { PlayerStatusButton } from "@/components/org/player-status-button";
 
 export default async function OrgPlayerDetailPage({
   params,
@@ -67,12 +68,20 @@ export default async function OrgPlayerDetailPage({
             <p className="text-muted-foreground">@{player.username}</p>
           </div>
         </div>
-        <Button variant="outline" asChild>
-          <Link href={`/org/players/${player.id}/edit`}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Player
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <PlayerStatusButton
+            playerId={player.id}
+            isActive={player.user?.isActive ?? true}
+            playerName={player.name}
+            subscriptionTier={player.subscriptionTier || "free"}
+          />
+          <Button variant="outline" asChild>
+            <Link href={`/org/players/${player.id}/edit`}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Player
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {/* Player Info Card */}
@@ -97,6 +106,9 @@ export default async function OrgPlayerDetailPage({
                     {player.subscriptionTier.toUpperCase()}
                   </Badge>
                 )}
+                <Badge variant={player.user?.isActive === false ? "destructive" : "default"}>
+                  {player.user?.isActive === false ? "Inactive" : "Active"}
+                </Badge>
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 {player.user.email && (

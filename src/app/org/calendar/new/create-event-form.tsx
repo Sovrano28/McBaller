@@ -13,6 +13,7 @@ import { ArrowLeft, Save, Calendar as CalendarIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { createEvent } from "@/lib/actions/events";
+import { getOrganizationVenues } from "@/lib/actions/venues";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
@@ -20,15 +21,17 @@ import { format } from "date-fns";
 interface CreateEventFormProps {
   teams: any[];
   organizationId: string;
+  venues: any[];
 }
 
-export default function CreateEventForm({ teams, organizationId }: CreateEventFormProps) {
+export default function CreateEventForm({ teams, organizationId, venues }: CreateEventFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [isAllDay, setIsAllDay] = useState(false);
+  const [selectedVenueId, setSelectedVenueId] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,6 +49,9 @@ export default function CreateEventForm({ teams, organizationId }: CreateEventFo
       isAllDay: isAllDay,
       teamId: formData.get("team") && formData.get("team") !== "none" 
         ? formData.get("team") as string 
+        : undefined,
+      venueId: selectedVenueId && selectedVenueId !== "none"
+        ? selectedVenueId
         : undefined,
     };
 
@@ -206,15 +212,44 @@ export default function CreateEventForm({ teams, organizationId }: CreateEventFo
               <Label htmlFor="allDay">All day event</Label>
             </div>
 
-            {/* Location */}
+            {/* Venue Selection */}
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                name="location"
-                placeholder="e.g., Main Field, Training Ground #2"
-              />
+              <Label htmlFor="venue">Venue (Optional)</Label>
+              <Select value={selectedVenueId} onValueChange={setSelectedVenueId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a venue" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No venue / Custom location</SelectItem>
+                  {venues.map((venue) => (
+                    <SelectItem key={venue.id} value={venue.id}>
+                      {venue.name}
+                      {venue.address && ` - ${venue.address}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {venues.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  No venues available.{" "}
+                  <Link href="/org/venues/new" className="text-blue-600 hover:underline">
+                    Create a venue
+                  </Link>
+                </p>
+              )}
             </div>
+
+            {/* Location (shown if no venue selected) */}
+            {(!selectedVenueId || selectedVenueId === "none") && (
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  name="location"
+                  placeholder="e.g., Main Field, Training Ground #2"
+                />
+              </div>
+            )}
 
             {/* Team Selection */}
             <div className="space-y-2">
@@ -224,7 +259,7 @@ export default function CreateEventForm({ teams, organizationId }: CreateEventFo
                   <SelectValue placeholder="Select a team" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No specific team</SelectItem>
+                  <SelectItem value="none">Organization-wide event</SelectItem>
                   {teams.map((team) => (
                     <SelectItem key={team.id} value={team.id}>
                       {team.name}

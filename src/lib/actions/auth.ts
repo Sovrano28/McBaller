@@ -35,6 +35,11 @@ export async function login(
       return { success: false, error: "Invalid email or password" };
     }
 
+    // Check if user account is active
+    if (user.isActive === false) {
+      return { success: false, error: "Account has been deactivated. Please contact support." };
+    }
+
     // Verify password
     const isValid = await bcrypt.compare(password, user.passwordHash);
     if (!isValid) {
