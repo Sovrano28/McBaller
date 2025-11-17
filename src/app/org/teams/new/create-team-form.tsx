@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Upload } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { createTeam } from "@/lib/actions/teams";
 
 interface CreateTeamFormProps {
@@ -60,10 +60,11 @@ export default function CreateTeamForm({
       // In production, you'd upload to cloud storage and get URL
       const reader = new FileReader();
       reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-        // For now, we'll use a placeholder URL
-        // In production, upload to S3/Cloudinary/etc and use the returned URL
-        setFormData({ ...formData, logo: URL.createObjectURL(file) });
+        const base64String = reader.result as string;
+        setLogoPreview(base64String);
+        // Store as base64 data URL for now
+        // TODO: In production, upload to S3/Cloudinary/etc and store the returned URL
+        setFormData({ ...formData, logo: base64String });
       };
       reader.readAsDataURL(file);
     }

@@ -31,25 +31,23 @@ export default async function CalendarPage() {
   endOfMonth.setDate(0);
   endOfMonth.setHours(23, 59, 59, 999);
 
-  let events;
-  try {
-    events = await getOrganizationEvents(orgSession.organizationId, {
-      startDate: startOfMonth,
-      endDate: endOfMonth,
-    });
-  } catch (error) {
-    events = [];
-  }
+  const events: any[] = await getOrganizationEvents(orgSession.organizationId, {
+    startDate: startOfMonth,
+    endDate: endOfMonth,
+  }).catch(() => []);
 
   // Group events by date for calendar display
-  const eventsByDate = events.reduce((acc: any, event: any) => {
-    const dateKey = event.startTime.toISOString().split('T')[0];
-    if (!acc[dateKey]) {
-      acc[dateKey] = [];
-    }
-    acc[dateKey].push(event);
-    return acc;
-  }, {});
+  const eventsByDate = events.reduce(
+    (acc: Record<string, any[]>, event: any) => {
+      const dateKey = event.startTime.toISOString().split("T")[0];
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(event);
+      return acc;
+    },
+    {}
+  );
 
   return (
     <div className="space-y-6">
@@ -113,7 +111,7 @@ export default async function CalendarPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {events.slice(0, 10).map((event: any) => (
+                {(events as any[]).slice(0, 10).map((event: any) => (
                   <Link
                     key={event.id}
                     href={`/org/calendar/${event.id}`}
@@ -183,7 +181,10 @@ export default async function CalendarPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Practices</p>
                 <p className="text-2xl font-bold">
-                  {events.filter((e: any) => e.type === "practice").length}
+                  {
+                    (events as any[]).filter((e: any) => e.type === "practice")
+                      .length
+                  }
                 </p>
               </div>
               <Badge variant="outline">Practice</Badge>
@@ -196,7 +197,10 @@ export default async function CalendarPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Games</p>
                 <p className="text-2xl font-bold">
-                  {events.filter((e: any) => e.type === "game").length}
+                  {
+                    (events as any[]).filter((e: any) => e.type === "game")
+                      .length
+                  }
                 </p>
               </div>
               <Badge variant="default">Game</Badge>
@@ -209,7 +213,11 @@ export default async function CalendarPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Tournaments</p>
                 <p className="text-2xl font-bold">
-                  {events.filter((e: any) => e.type === "tournament").length}
+                  {
+                    (events as any[]).filter(
+                      (e: any) => e.type === "tournament"
+                    ).length
+                  }
                 </p>
               </div>
               <Badge variant="secondary">Tournament</Badge>

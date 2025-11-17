@@ -118,6 +118,7 @@ model Player {
   username           String    @unique
   phone              String
   avatar             String?
+  banner             String?
   dateOfBirth        DateTime?
   state              String?
   currentLocation    String?

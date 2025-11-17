@@ -287,7 +287,7 @@ export default function LandingPage() {
                 </div>
                 <div className="mt-8 text-center">
                   <Link href="/league-stats">
-                    <Button variant="outline" size="lg">
+                    <Button className="gap-0.5 sm:gap-2 px-4 sm:px-8" variant="outline" size="lg">
                       Explore League Statistics
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>

@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 import type { OrgAuthData } from "@/lib/auth-types";
+import { prisma } from "@/lib/prisma";
 import {
   Card,
   CardContent,
@@ -8,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Settings } from "lucide-react";
+import OrgSettingsClient from "./org-settings-client";
 
 export default async function OrgSettingsPage() {
   const session = await getSession();
@@ -22,24 +23,23 @@ export default async function OrgSettingsPage() {
     redirect("/login");
   }
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">
-          Manage your organization settings
-        </p>
-      </div>
+  const organization = await prisma.organization.findUnique({
+    where: { id: orgSession.organizationId },
+    select: {
+      id: true,
+      name: true,
+      logo: true,
+      email: true,
+      phone: true,
+      address: true,
+      website: true,
+      description: true,
+    },
+  });
 
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Settings className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Coming Soon</h3>
-          <p className="text-muted-foreground text-center">
-            Organization settings will be available here
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  if (!organization) {
+    redirect("/login");
+  }
+
+  return <OrgSettingsClient organization={organization} />;
 }

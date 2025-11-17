@@ -13,7 +13,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Users, FileText } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Users } from "lucide-react";
+import TeamSettingsClient from "./team-settings-client";
 
 export default async function OrgTeamDetailPage({
   params,
@@ -73,7 +75,15 @@ export default async function OrgTeamDetailPage({
         </Card>
       )}
 
-      {/* Stats */}
+      {/* Tabs for Overview and Settings */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
@@ -221,6 +231,17 @@ export default async function OrgTeamDetailPage({
           </CardContent>
         </Card>
       )}
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          <TeamSettingsClient
+            teamId={team.id}
+            organizationId={orgSession.organizationId}
+            currentLogo={team.logo}
+            teamName={team.name}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

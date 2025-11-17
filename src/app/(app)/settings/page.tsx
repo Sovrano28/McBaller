@@ -10,10 +10,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { AlertCircle, Save, User, Bell, Shield, Globe } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AvatarUpload } from '@/components/ui/avatar-upload';
+import { BannerUpload } from '@/components/ui/banner-upload';
+import { updatePlayerAvatar, updatePlayerBanner } from '@/lib/actions/players';
+import { useRouter } from 'next/navigation';
+import type { PlayerAuthData } from '@/lib/auth-types';
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   if (!user) {
@@ -61,7 +67,52 @@ export default function SettingsPage() {
           </div>
           <CardDescription>Update your personal information</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          {user?.role === 'player' && 'playerId' in user && (
+            <>
+              <div className="border-b pb-6">
+                <h3 className="text-sm font-medium mb-4">Profile Banner</h3>
+                <BannerUpload
+                  currentImageUrl={(user as PlayerAuthData).banner}
+                  onUploadComplete={async (url: string) => {
+                    const result = await updatePlayerBanner(
+                      (user as PlayerAuthData).playerId,
+                      url
+                    );
+                    if (result.success) {
+                      await refresh();
+                      router.refresh();
+                    } else {
+                      throw new Error(result.error || "Failed to update banner");
+                    }
+                  }}
+                  folder="players/banners"
+                  entityName={user.name || "Player"}
+                />
+              </div>
+              <div className="border-b pb-6">
+                <h3 className="text-sm font-medium mb-4">Profile Picture</h3>
+                <AvatarUpload
+                  currentImageUrl={(user as PlayerAuthData).avatar}
+                  onUploadComplete={async (url: string) => {
+                    const result = await updatePlayerAvatar(
+                      (user as PlayerAuthData).playerId,
+                      url
+                    );
+                    if (result.success) {
+                      await refresh();
+                      router.refresh();
+                    } else {
+                      throw new Error(result.error || "Failed to update avatar");
+                    }
+                  }}
+                  folder="players"
+                  entityName={user.name || "Player"}
+                  size="lg"
+                />
+              </div>
+            </>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">

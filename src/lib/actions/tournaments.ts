@@ -139,7 +139,7 @@ export async function getTournament(
   if (session.role === "player") {
     // Get player's teams
     const player = await prisma.player.findUnique({
-      where: { userId: session.userId },
+      where: { userId: session.id },
       include: {
         contracts: {
           where: { status: "active" },
@@ -271,7 +271,7 @@ export async function createTournament(
     const tournament = await prisma.tournament.create({
       data: {
         organizationId,
-        createdById: orgSession.userId,
+        createdById: orgSession.id,
         name: data.name,
         description: data.description,
         type: data.type || "knockout",
@@ -505,14 +505,38 @@ export async function createTournamentFixture(
       }
     }
 
+    // Get team names if teams are selected
+    let homeTeamName = data.homeTeamName;
+    let awayTeamName = data.awayTeamName;
+    
+    if (data.homeTeamId) {
+      const homeTeam = await prisma.team.findUnique({
+        where: { id: data.homeTeamId },
+        select: { name: true },
+      });
+      if (homeTeam) {
+        homeTeamName = homeTeam.name;
+      }
+    }
+    
+    if (data.awayTeamId) {
+      const awayTeam = await prisma.team.findUnique({
+        where: { id: data.awayTeamId },
+        select: { name: true },
+      });
+      if (awayTeam) {
+        awayTeamName = awayTeam.name;
+      }
+    }
+
     // Create fixture
     const fixture = await prisma.fixture.create({
       data: {
         tournamentId: data.tournamentId,
         homeTeamId: data.homeTeamId,
         awayTeamId: data.awayTeamId,
-        homeTeamName: data.homeTeamName,
-        awayTeamName: data.awayTeamName,
+        homeTeamName: homeTeamName,
+        awayTeamName: awayTeamName,
         scheduledAt: data.scheduledAt,
         venueId: data.venueId,
         round: data.round,
@@ -521,23 +545,32 @@ export async function createTournamentFixture(
     });
 
     // Create corresponding event for the fixture
-    const eventTitle = data.homeTeamName && data.awayTeamName
-      ? `${data.homeTeamName} vs ${data.awayTeamName}`
-      : tournament.name;
+    const eventTitle = homeTeamName && awayTeamName
+      ? `${homeTeamName} vs ${awayTeamName}`
+      : homeTeamName || awayTeamName || tournament.name;
 
+    // Create event - make it org-wide (teamId = null) so both teams' players can see it
+    // Store team IDs in attendees field for reference
     const event = await prisma.event.create({
       data: {
         organizationId,
-        createdById: orgSession.userId,
+        createdById: orgSession.id,
         title: eventTitle,
         description: `Tournament match: ${tournament.name}${data.round ? ` - ${data.round}` : ""}`,
         type: "tournament",
         startTime: data.scheduledAt,
         endTime: new Date(data.scheduledAt.getTime() + 2 * 60 * 60 * 1000), // Default 2 hours
         venueId: data.venueId,
-        teamId: data.homeTeamId || null, // Link to home team if available
+        teamId: null, // Org-wide event so both teams' players can see it
         attendees: data.homeTeamId && data.awayTeamId
-          ? JSON.stringify([data.homeTeamId, data.awayTeamId])
+          ? JSON.stringify([
+              { type: "team", id: data.homeTeamId },
+              { type: "team", id: data.awayTeamId },
+            ])
+          : data.homeTeamId
+          ? JSON.stringify([{ type: "team", id: data.homeTeamId }])
+          : data.awayTeamId
+          ? JSON.stringify([{ type: "team", id: data.awayTeamId }])
           : null,
       },
     });

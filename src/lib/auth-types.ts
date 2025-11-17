@@ -15,6 +15,7 @@ export interface PlayerAuthData extends AuthUser {
   name: string;
   username: string;
   avatar?: string;
+  banner?: string;
   subscriptionTier?: string; // "free" | "pro" | "elite"
   subscriptionExpiry?: string;
   trialUsed?: boolean;

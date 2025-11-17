@@ -1,16 +1,10 @@
 import { getSession } from "@/lib/actions/auth";
 import { redirect } from "next/navigation";
 import type { OrgAuthData } from "@/lib/auth-types";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Trophy } from "lucide-react";
+import CreateTournamentForm from "./create-tournament-form";
+import { getOrganizationSeasons } from "@/lib/actions/teams";
 
-export default async function NewTournamentPage() {
+export default async function CreateTournamentPage() {
   const session = await getSession();
 
   if (!session || session.role === "player") {
@@ -22,25 +16,12 @@ export default async function NewTournamentPage() {
     redirect("/login");
   }
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">New Tournament</h1>
-        <p className="text-muted-foreground">
-          Create a new tournament or competition
-        </p>
-      </div>
+  const seasons = await getOrganizationSeasons(orgSession.organizationId);
 
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Trophy className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Coming Soon</h3>
-          <p className="text-muted-foreground text-center">
-            Tournament creation form will be available here
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+  return (
+    <CreateTournamentForm
+      organizationId={orgSession.organizationId}
+      seasons={seasons}
+    />
   );
 }
-

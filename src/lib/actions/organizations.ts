@@ -388,3 +388,33 @@ export async function togglePlayerStatus(playerId: string, suspend: boolean) {
     return { success: false, error: "Failed to toggle player status" };
   }
 }
+
+export async function updateOrganizationLogo(
+  organizationId: string,
+  logoUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getSession();
+    if (!session || session.role === "player") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const orgSession = session as OrgAuthData;
+    if (orgSession.organizationId !== organizationId) {
+      return { success: false, error: "Forbidden" };
+    }
+
+    await prisma.organization.update({
+      where: { id: organizationId },
+      data: { logo: logoUrl || null },
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update organization logo error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to update logo",
+    };
+  }
+}

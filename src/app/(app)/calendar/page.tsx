@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import type { PlayerAuthData } from "@/lib/auth-types";
 import { getPlayerEvents } from "@/lib/actions/events";
 import CalendarClient from "./calendar-client";
-import { format } from "date-fns";
 
 export default async function CalendarPage() {
   const session = await getSession();

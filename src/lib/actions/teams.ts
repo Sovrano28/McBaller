@@ -360,3 +360,46 @@ export async function deleteTeam(
   }
 }
 
+export async function updateTeamLogo(
+  organizationId: string,
+  teamId: string,
+  logoUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getSession();
+    if (!session || session.role === "player") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const orgSession = session as OrgAuthData;
+    if (orgSession.organizationId !== organizationId) {
+      return { success: false, error: "Forbidden" };
+    }
+
+    // Verify team belongs to organization
+    const team = await prisma.team.findFirst({
+      where: {
+        id: teamId,
+        organizationId,
+      },
+    });
+
+    if (!team) {
+      return { success: false, error: "Team not found" };
+    }
+
+    await prisma.team.update({
+      where: { id: teamId },
+      data: { logo: logoUrl || null },
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update team logo error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to update logo",
+    };
+  }
+}
+

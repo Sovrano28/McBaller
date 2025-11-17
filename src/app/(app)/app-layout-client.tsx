@@ -132,6 +132,7 @@ export function AppLayoutClient({
     { href: "/stats/upload", label: "My Stats", icon: Upload, _id: "6" },
     { href: "/analytics", label: "Analytics", icon: BarChart2, _id: "7" },
     { href: "/pricing", label: "Subscription", icon: CreditCard, _id: "8" },
+    { href: "/settings", label: "Settings", icon: Settings, _id: "9" },
   ];
 
   return (

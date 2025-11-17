@@ -190,7 +190,7 @@ export async function createEvent(
     const event = await prisma.event.create({
       data: {
         organizationId,
-        createdById: orgSession.userId,
+        createdById: orgSession.id,
         title: data.title,
         description: data.description,
         type: data.type,
@@ -409,6 +409,19 @@ export async function getPlayerEvents(playerId: string, filters?: {
     throw new Error("Unauthorized");
   }
 
+  // Get player's organization and teams
+  const player = await prisma.player.findUnique({
+    where: { id: playerId },
+    select: {
+      organizationId: true,
+      teamId: true, // Direct team assignment
+    },
+  });
+
+  if (!player || !player.organizationId) {
+    return [];
+  }
+
   // Get player's contracts to find their teams
   const contracts = await prisma.contract.findMany({
     where: {
@@ -420,33 +433,37 @@ export async function getPlayerEvents(playerId: string, filters?: {
     },
   });
 
-  const teamIds = contracts.map((c) => c.teamId);
+  // Combine direct team assignment and contract teams
+  const teamIdsSet = new Set<string>();
+  if (player.teamId) {
+    teamIdsSet.add(player.teamId);
+  }
+  contracts.forEach((c) => {
+    if (c.teamId) {
+      teamIdsSet.add(c.teamId);
+    }
+  });
+  const teamIds = Array.from(teamIdsSet);
 
-  // Get organization IDs from contracts
-  const teams = await prisma.team.findMany({
-    where: {
-      id: { in: teamIds },
-    },
-    select: {
-      organizationId: true,
-    },
+  // Build query conditions
+  const whereConditions: any[] = [];
+
+  // Add team-specific events if player has teams
+  if (teamIds.length > 0) {
+    whereConditions.push({
+      teamId: { in: teamIds },
+      organizationId: player.organizationId,
+    });
+  }
+
+  // Always include organization-wide events (teamId is null)
+  whereConditions.push({
+    teamId: null,
+    organizationId: player.organizationId,
   });
 
-  const organizationIds = [...new Set(teams.map((t) => t.organizationId))];
-
   const where: any = {
-    OR: [
-      // Events for teams the player is on
-      {
-        teamId: { in: teamIds },
-        organizationId: { in: organizationIds },
-      },
-      // Organization-wide events (no teamId)
-      {
-        teamId: null,
-        organizationId: { in: organizationIds },
-      },
-    ],
+    OR: whereConditions,
     status: filters?.status || { not: "cancelled" },
   };
 
@@ -506,18 +523,23 @@ export async function getPlayerEvents(playerId: string, filters?: {
     },
   });
 
-  // Filter events where player is explicitly added as attendee
+  // Filter events where player is explicitly added as attendee or their team is in attendees
   const attendeeEvents = events.filter((event) => {
     if (!event.attendees) return false;
     try {
       const attendees = Array.isArray(event.attendees)
         ? event.attendees
         : JSON.parse(event.attendees as any);
-      return attendees.some(
-        (attendee: any) =>
-          (typeof attendee === "string" && attendee === playerId) ||
-          (typeof attendee === "object" && attendee.id === playerId)
-      );
+      return attendees.some((attendee: any) => {
+        // Check if player is directly added
+        if (typeof attendee === "string" && attendee === playerId) return true;
+        if (typeof attendee === "object" && attendee.id === playerId) return true;
+        // Check if player's team is in attendees
+        if (typeof attendee === "object" && attendee.type === "team") {
+          return teamIds.includes(attendee.id);
+        }
+        return false;
+      });
     } catch {
       return false;
     }

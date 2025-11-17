@@ -155,6 +155,7 @@ export async function getSession(): Promise<AuthSession | null> {
         name: user.player.name,
         username: user.player.username,
         avatar: user.player.avatar || undefined,
+        banner: user.player.banner || undefined,
         subscriptionTier: user.player.subscriptionTier || "free",
         subscriptionExpiry:
           user.player.subscriptionExpiry?.toISOString() || undefined,

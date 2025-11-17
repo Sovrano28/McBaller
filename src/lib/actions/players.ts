@@ -174,3 +174,81 @@ export async function getPlayerByUsername(username: string) {
     return null;
   }
 }
+
+export async function updatePlayerAvatar(
+  playerId: string,
+  avatarUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "player") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // Verify player can only update their own avatar
+    const player = await prisma.player.findUnique({
+      where: { id: playerId },
+      select: { userId: true },
+    });
+
+    if (!player) {
+      return { success: false, error: "Player not found" };
+    }
+
+    if (player.userId !== session.id) {
+      return { success: false, error: "Forbidden" };
+    }
+
+    await prisma.player.update({
+      where: { id: playerId },
+      data: { avatar: avatarUrl || null },
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update player avatar error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to update avatar",
+    };
+  }
+}
+
+export async function updatePlayerBanner(
+  playerId: string,
+  bannerUrl: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await getSession();
+    if (!session || session.role !== "player") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    // Verify player can only update their own banner
+    const player = await prisma.player.findUnique({
+      where: { id: playerId },
+      select: { userId: true },
+    });
+
+    if (!player) {
+      return { success: false, error: "Player not found" };
+    }
+
+    if (player.userId !== session.id) {
+      return { success: false, error: "Forbidden" };
+    }
+
+    await prisma.player.update({
+      where: { id: playerId },
+      data: { banner: bannerUrl || null },
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update player banner error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to update banner",
+    };
+  }
+}
