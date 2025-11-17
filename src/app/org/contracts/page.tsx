@@ -49,14 +49,14 @@ export default async function OrgContractsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Contracts</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Contracts</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Manage player contracts and agreements
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="w-full sm:w-auto">
           <Link href="/org/contracts/new">
             <Plus className="mr-2 h-4 w-4" />
             Create Contract
@@ -65,7 +65,7 @@ export default async function OrgContractsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -116,10 +116,10 @@ export default async function OrgContractsPage() {
               key={contract.id}
               className="hover:shadow-md transition-shadow"
             >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <Avatar>
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                    <Avatar className="flex-shrink-0">
                       <AvatarImage src={contract.player.avatar || undefined} />
                       <AvatarFallback>
                         {contract.player.name
@@ -129,22 +129,40 @@ export default async function OrgContractsPage() {
                           .toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1.5">
                         <Link
                           href={`/org/contracts/${contract.id}`}
-                          className="font-medium hover:underline"
+                          className="font-medium hover:underline text-sm sm:text-base break-words"
                         >
                           {contract.player.name}
                         </Link>
-                        {contract.team && (
-                          <Badge variant="outline">{contract.team.name}</Badge>
-                        )}
-                        <Badge variant={getStatusVariant(contract.status)}>
+                        <Badge
+                          variant={getStatusVariant(contract.status)}
+                          className="text-xs whitespace-nowrap"
+                        >
                           {contract.status}
                         </Badge>
+                        {contract.team && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs whitespace-nowrap hidden sm:inline-flex"
+                          >
+                            {contract.team.name}
+                          </Badge>
+                        )}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      {contract.team && (
+                        <div className="mb-1.5 sm:hidden">
+                          <Badge
+                            variant="outline"
+                            className="text-xs whitespace-nowrap"
+                          >
+                            {contract.team.name}
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="text-xs sm:text-sm text-muted-foreground mt-1 break-words">
                         <span>
                           {format(new Date(contract.startDate), "MMM dd, yyyy")}
                         </span>
@@ -163,13 +181,18 @@ export default async function OrgContractsPage() {
                         )}
                       </div>
                       {contract.salary && (
-                        <div className="text-sm font-medium mt-1">
+                        <div className="text-xs sm:text-sm font-medium mt-1 break-words">
                           Salary: ₦{Number(contract.salary).toLocaleString()}
                         </div>
                       )}
                     </div>
                   </div>
-                  <Button variant="outline" size="sm" asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="w-full sm:w-auto flex-shrink-0"
+                  >
                     <Link href={`/org/contracts/${contract.id}`}>View</Link>
                   </Button>
                 </div>

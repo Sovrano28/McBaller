@@ -103,6 +103,8 @@ model User {
   backgroundChecks BackgroundCheck[]
   documents        Document[]
   auditLogs        AuditLog[]
+  createdEvents    Event[]           @relation("EventCreator")
+  createdTournaments Tournament[]     @relation("TournamentCreator")
 
   @@index([organizationId])
   @@index([role])
@@ -312,6 +314,7 @@ model Event {
   organizationId String
   teamId         String?
   venueId        String?
+  createdById    String? // User ID who created the event
   title          String
   description    String?
   type           String // "practice" | "game" | "tournament" | "meeting"
@@ -332,6 +335,7 @@ model Event {
   organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   team           Team?          @relation(fields: [teamId], references: [id], onDelete: SetNull)
   venue          Venue?         @relation(fields: [venueId], references: [id], onDelete: SetNull)
+  createdBy      User?          @relation("EventCreator", fields: [createdById], references: [id], onDelete: SetNull)
   availabilities Availability[]
   attendances    Attendance[]
   venueBookings  VenueBooking[] @relation("EventVenueBookings")
@@ -340,6 +344,7 @@ model Event {
   @@index([organizationId])
   @@index([teamId])
   @@index([venueId])
+  @@index([createdById])
   @@index([startTime])
   @@index([type])
   @@index([status])
@@ -637,6 +642,7 @@ model Tournament {
   id             String    @id @default(cuid()) @map("_id")
   organizationId String
   seasonId       String?
+  createdById    String? // User ID who created the tournament
   name           String
   description    String?
   type           String    @default("knockout") // "knockout" | "round_robin" | "group_stage" | "bracket"
@@ -652,10 +658,12 @@ model Tournament {
   // Relations
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   season       Season?      @relation(fields: [seasonId], references: [id], onDelete: SetNull)
+  createdBy    User?         @relation("TournamentCreator", fields: [createdById], references: [id], onDelete: SetNull)
   fixtures     Fixture[]
 
   @@index([organizationId])
   @@index([seasonId])
+  @@index([createdById])
   @@index([status])
   @@index([startDate])
   @@map("tournaments")

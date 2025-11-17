@@ -53,7 +53,7 @@ export default async function CalendarPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div>
           <h1 className="mb-3 font-headline text-4xl font-bold">Calendar</h1>
           <p className="text-lg text-muted-foreground">
@@ -81,13 +81,17 @@ export default async function CalendarPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="font-headline">Event Calendar</CardTitle>
-            <CardDescription>View and manage all upcoming events</CardDescription>
+            <CardDescription>
+              View and manage all upcoming events
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Calendar
               className="rounded-md border"
               modifiers={{
-                hasEvents: Object.keys(eventsByDate).map(date => new Date(date)),
+                hasEvents: Object.keys(eventsByDate).map(
+                  date => new Date(date)
+                ),
               }}
               modifiersClassNames={{
                 hasEvents: "bg-primary/20 border-primary",
@@ -132,11 +136,13 @@ export default async function CalendarPage() {
                           {event.venue.name}
                           {event.venue.address && ` - ${event.venue.address}`}
                         </div>
-                      ) : event.location && (
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {event.location}
-                        </div>
+                      ) : (
+                        event.location && (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {event.location}
+                          </div>
+                        )
                       )}
                       {event.team ? (
                         <div className="flex items-center gap-1">

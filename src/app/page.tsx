@@ -25,25 +25,32 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <div className="container mx-auto flex h-16 items-center justify-between px-2 sm:px-4">
           <AppLogo />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-4">
             <Link href="/login">
-              <Button variant="ghost">Log In</Button>
+              <Button
+                variant="ghost"
+                className="text-xs sm:text-sm px-2 sm:px-4"
+              >
+                Log In
+              </Button>
             </Link>
             <Link href="/signup">
-              <Button>Start Free Trial</Button>
+              <Button className="text-xs sm:text-sm px-2 sm:px-4">
+                Start Free Trial
+              </Button>
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-20 md:py-32">
+      <section className="container mx-auto px-2 sm:px-4 py-20 md:py-32">
         <div className="mx-auto max-w-4xl text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card px-4 py-2">
-            <Star className="h-4 w-4 fill-[#FFB81C] text-[#FFB81C]" />
-            <span className="text-sm font-medium">
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 rounded-full border bg-card px-2 py-1.5 sm:px-4 sm:py-2">
+            <Star className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 fill-[#FFB81C] text-[#FFB81C]" />
+            <span className="text-xs sm:text-sm font-medium text-center leading-tight">
               Professional Development for Nigerian Footballers
             </span>
           </div>
@@ -74,7 +81,7 @@ export default function LandingPage() {
           </div>
 
           {/* Stats Counter */}
-          <div className="mt-12 grid grid-cols-3 gap-4 rounded-lg border bg-card p-6">
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg border bg-card p-6">
             <div>
               <div className="font-headline text-3xl font-bold text-[#008751]">
                 2,500+

@@ -137,11 +137,13 @@ export function SuperAdminLayoutClient({ children }: { children: React.ReactNode
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <div className="flex items-center gap-2 px-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-1 sm:px-2 flex-wrap min-w-0">
             <AppLogo />
-            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-purple-600 text-white">
-              <Crown className="h-3 w-3" />
-              <span className="text-xs font-semibold">SUPER ADMIN</span>
+            <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md bg-purple-600 text-white flex-shrink-0 group-data-[collapsible=icon]:px-1.5 group-data-[collapsible=icon]:justify-center">
+              <Crown className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
+              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap group-data-[collapsible=icon]:hidden">
+                SUPER ADMIN
+              </span>
             </div>
           </div>
         </SidebarHeader>

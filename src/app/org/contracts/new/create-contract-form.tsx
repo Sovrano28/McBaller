@@ -41,7 +41,7 @@ export default function CreateContractForm({
 
   const [formData, setFormData] = useState({
     playerId: "",
-    teamId: "",
+    teamId: "none",
     startDate: "",
     endDate: "",
     salary: "",
@@ -54,7 +54,7 @@ export default function CreateContractForm({
     try {
       const result = await createContract(organizationId, {
         playerId: formData.playerId,
-        teamId: formData.teamId || undefined,
+        teamId: formData.teamId && formData.teamId !== "none" ? formData.teamId : undefined,
         startDate: new Date(formData.startDate),
         endDate: formData.endDate ? new Date(formData.endDate) : undefined,
         salary: formData.salary ? parseFloat(formData.salary) : undefined,
@@ -158,7 +158,7 @@ export default function CreateContractForm({
                     <SelectValue placeholder="Select a team (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Team</SelectItem>
+                    <SelectItem value="none">No Team</SelectItem>
                     {teams.map(team => (
                       <SelectItem key={team.id} value={team.id}>
                         {team.name}

@@ -190,6 +190,7 @@ export async function createEvent(
     const event = await prisma.event.create({
       data: {
         organizationId,
+        createdById: orgSession.userId,
         title: data.title,
         description: data.description,
         type: data.type,
@@ -208,6 +209,13 @@ export async function createEvent(
             id: true,
             name: true,
             slug: true,
+          },
+        },
+        createdBy: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
           },
         },
       },
@@ -388,5 +396,141 @@ export async function getUpcomingEvents(organizationId: string, limit = 10) {
   });
 
   return events;
+}
+
+export async function getPlayerEvents(playerId: string, filters?: {
+  startDate?: Date;
+  endDate?: Date;
+  type?: string;
+  status?: string;
+}) {
+  const session = await getSession();
+  if (!session || session.role !== "player") {
+    throw new Error("Unauthorized");
+  }
+
+  // Get player's contracts to find their teams
+  const contracts = await prisma.contract.findMany({
+    where: {
+      playerId,
+      status: "active",
+    },
+    select: {
+      teamId: true,
+    },
+  });
+
+  const teamIds = contracts.map((c) => c.teamId);
+
+  // Get organization IDs from contracts
+  const teams = await prisma.team.findMany({
+    where: {
+      id: { in: teamIds },
+    },
+    select: {
+      organizationId: true,
+    },
+  });
+
+  const organizationIds = [...new Set(teams.map((t) => t.organizationId))];
+
+  const where: any = {
+    OR: [
+      // Events for teams the player is on
+      {
+        teamId: { in: teamIds },
+        organizationId: { in: organizationIds },
+      },
+      // Organization-wide events (no teamId)
+      {
+        teamId: null,
+        organizationId: { in: organizationIds },
+      },
+    ],
+    status: filters?.status || { not: "cancelled" },
+  };
+
+  // Check for events where player is explicitly added as attendee
+  // This will be handled by checking the attendees JSON field
+  // We'll include all events and filter in the application layer if needed
+
+  if (filters?.startDate || filters?.endDate) {
+    where.startTime = {};
+    if (filters.startDate) {
+      where.startTime.gte = filters.startDate;
+    }
+    if (filters.endDate) {
+      where.startTime.lte = filters.endDate;
+    }
+  }
+
+  if (filters?.type) {
+    where.type = filters.type;
+  }
+
+  const events = await prisma.event.findMany({
+    where,
+    include: {
+      team: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          logo: true,
+        },
+      },
+      organization: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+      venue: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+        },
+      },
+      createdBy: {
+        select: {
+          id: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+  });
+
+  // Filter events where player is explicitly added as attendee
+  const attendeeEvents = events.filter((event) => {
+    if (!event.attendees) return false;
+    try {
+      const attendees = Array.isArray(event.attendees)
+        ? event.attendees
+        : JSON.parse(event.attendees as any);
+      return attendees.some(
+        (attendee: any) =>
+          (typeof attendee === "string" && attendee === playerId) ||
+          (typeof attendee === "object" && attendee.id === playerId)
+      );
+    } catch {
+      return false;
+    }
+  });
+
+  // Combine team/organization events with attendee events, removing duplicates
+  const eventMap = new Map();
+  [...events, ...attendeeEvents].forEach((event) => {
+    if (!eventMap.has(event.id)) {
+      eventMap.set(event.id, event);
+    }
+  });
+
+  return Array.from(eventMap.values());
 }
 

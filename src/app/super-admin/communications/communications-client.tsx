@@ -199,7 +199,7 @@ export function CommunicationsClient() {
                 <Input
                   placeholder="Search messages..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -246,71 +246,108 @@ export function CommunicationsClient() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {filteredMessages.map((message) => (
-            <Card key={message.id} className="hover:border-primary/50 transition-colors">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold">{message.title}</h3>
-                      <Badge variant={getStatusVariant(message.status) as any}>
-                        <div className="flex items-center gap-1">
-                          {getStatusIcon(message.status)}
-                          <span className="capitalize">{message.status}</span>
-                        </div>
-                      </Badge>
-                      {message.priority === "urgent" && (
-                        <Badge variant="destructive">Urgent</Badge>
-                      )}
-                      {message.priority === "high" && (
-                        <Badge variant="default">High Priority</Badge>
-                      )}
+          {filteredMessages.map(message => (
+            <Card
+              key={message.id}
+              className="hover:border-primary/50 transition-colors"
+            >
+              <CardContent className="p-6 @container">
+                <div className="flex flex-col @[578px]:flex-row gap-3 @[578px]:items-start justify-between">
+                  <div className="flex-1 space-y-2 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 @[578px]:gap-3">
+                      <h3 className="text-base @[578px]:text-lg font-semibold break-words">
+                        {message.title}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge
+                          variant={getStatusVariant(message.status) as any}
+                          className="text-xs"
+                        >
+                          <div className="flex items-center gap-1">
+                            {getStatusIcon(message.status)}
+                            <span className="capitalize">{message.status}</span>
+                          </div>
+                        </Badge>
+                        {message.priority === "urgent" && (
+                          <Badge variant="destructive" className="text-xs">
+                            Urgent
+                          </Badge>
+                        )}
+                        {message.priority === "high" && (
+                          <Badge variant="default" className="text-xs">
+                            High Priority
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {message.content}
                     </p>
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 @[578px]:gap-4 text-xs @[578px]:text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
-                        {message.messageType === "email" && <Mail className="h-4 w-4" />}
-                        {message.messageType === "whatsapp" && <MessageSquare className="h-4 w-4" />}
+                        {message.messageType === "email" && (
+                          <Mail className="h-3 w-3 @[578px]:h-4 @[578px]:w-4" />
+                        )}
+                        {message.messageType === "whatsapp" && (
+                          <MessageSquare className="h-3 w-3 @[578px]:h-4 @[578px]:w-4" />
+                        )}
                         {message.messageType === "both" && (
                           <>
-                            <Mail className="h-4 w-4" />
-                            <MessageSquare className="h-4 w-4" />
+                            <Mail className="h-3 w-3 @[578px]:h-4 @[578px]:w-4" />
+                            <MessageSquare className="h-3 w-3 @[578px]:h-4 @[578px]:w-4" />
                           </>
                         )}
-                        <span className="capitalize">{message.messageType}</span>
+                        <span className="capitalize">
+                          {message.messageType}
+                        </span>
                       </div>
 
-                      <div>
-                        Recipients: <span className="font-medium">{message.totalRecipients}</span>
+                      <div className="whitespace-nowrap">
+                        Recipients:{" "}
+                        <span className="font-medium">
+                          {message.totalRecipients}
+                        </span>
                       </div>
 
                       {message.scheduledFor && (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {format(new Date(message.scheduledFor), "PPp")}
+                        <div className="flex items-center gap-1 whitespace-nowrap">
+                          <Calendar className="h-3 w-3 @[578px]:h-4 @[578px]:w-4 flex-shrink-0" />
+                          <span className="hidden @[578px]:inline">
+                            {format(new Date(message.scheduledFor), "PPp")}
+                          </span>
+                          <span className="@[578px]:hidden">
+                            {format(
+                              new Date(message.scheduledFor),
+                              "MMM dd, yyyy"
+                            )}
+                          </span>
                         </div>
                       )}
 
-                      <div>
-                        Created: {format(new Date(message.createdAt), "PPp")}
+                      <div className="whitespace-nowrap">
+                        Created:{" "}
+                        <span className="hidden @[578px]:inline">
+                          {format(new Date(message.createdAt), "PPp")}
+                        </span>
+                        <span className="@[578px]:hidden">
+                          {format(new Date(message.createdAt), "MMM dd, yyyy")}
+                        </span>
                       </div>
                     </div>
 
                     {message.status === "sent" && (
-                      <div className="flex items-center gap-4 text-sm">
+                      <div className="flex flex-wrap items-center gap-2 @[578px]:gap-4 text-xs @[578px]:text-sm">
                         {message.emailsSent > 0 && (
                           <div className="flex items-center gap-1 text-green-600">
-                            <Mail className="h-4 w-4" />
+                            <Mail className="h-3 w-3 @[578px]:h-4 @[578px]:w-4" />
                             {message.emailsSent} sent
                           </div>
                         )}
                         {message.whatsappSent > 0 && (
                           <div className="flex items-center gap-1 text-green-600">
-                            <MessageSquare className="h-4 w-4" />
+                            <MessageSquare className="h-3 w-3 @[578px]:h-4 @[578px]:w-4" />
                             {message.whatsappSent} sent
                           </div>
                         )}
@@ -327,6 +364,7 @@ export function CommunicationsClient() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleViewDetails(message.id)}
+                    className="w-full @[578px]:w-auto flex-shrink-0 self-start @[578px]:self-auto"
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     View Details
@@ -344,7 +382,8 @@ export function CommunicationsClient() {
           <DialogHeader>
             <DialogTitle>Create New Message</DialogTitle>
             <DialogDescription>
-              Compose and send messages to your constituents via email and WhatsApp
+              Compose and send messages to your constituents via email and
+              WhatsApp
             </DialogDescription>
           </DialogHeader>
           <MessageComposer onSubmit={handleCompose} loading={submitting} />
@@ -360,31 +399,47 @@ export function CommunicationsClient() {
           {selectedMessage && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-2">{selectedMessage.title}</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  {selectedMessage.title}
+                </h3>
                 <div className="flex items-center gap-2 mb-3">
-                  <Badge variant={getStatusVariant(selectedMessage.status) as any}>
+                  <Badge
+                    variant={getStatusVariant(selectedMessage.status) as any}
+                  >
                     {selectedMessage.status}
                   </Badge>
-                  <Badge variant="secondary">{selectedMessage.messageType}</Badge>
+                  <Badge variant="secondary">
+                    {selectedMessage.messageType}
+                  </Badge>
                   <Badge variant="outline">{selectedMessage.priority}</Badge>
                 </div>
-                <p className="text-muted-foreground">{selectedMessage.content}</p>
+                <p className="text-muted-foreground">
+                  {selectedMessage.content}
+                </p>
               </div>
 
               {selectedMessage.status === "sent" && messageStats && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Delivery Statistics</CardTitle>
+                    <CardTitle className="text-base">
+                      Delivery Statistics
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-sm text-muted-foreground">Total Recipients</div>
-                        <div className="text-2xl font-bold">{messageStats.total}</div>
+                        <div className="text-sm text-muted-foreground">
+                          Total Recipients
+                        </div>
+                        <div className="text-2xl font-bold">
+                          {messageStats.total}
+                        </div>
                       </div>
                       {messageStats.emailSent > 0 && (
                         <div>
-                          <div className="text-sm text-muted-foreground">Emails Sent</div>
+                          <div className="text-sm text-muted-foreground">
+                            Emails Sent
+                          </div>
                           <div className="text-2xl font-bold text-green-600">
                             {messageStats.emailSent}
                           </div>
@@ -392,7 +447,9 @@ export function CommunicationsClient() {
                       )}
                       {messageStats.whatsappSent > 0 && (
                         <div>
-                          <div className="text-sm text-muted-foreground">WhatsApp Sent</div>
+                          <div className="text-sm text-muted-foreground">
+                            WhatsApp Sent
+                          </div>
                           <div className="text-2xl font-bold text-green-600">
                             {messageStats.whatsappSent}
                           </div>
@@ -408,12 +465,18 @@ export function CommunicationsClient() {
                   <h4 className="font-medium mb-2">Email Content</h4>
                   <div className="border rounded-md p-4 space-y-2">
                     <div>
-                      <div className="text-sm font-medium text-muted-foreground">Subject:</div>
+                      <div className="text-sm font-medium text-muted-foreground">
+                        Subject:
+                      </div>
                       <div>{selectedMessage.emailSubject}</div>
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-muted-foreground">Body:</div>
-                      <div className="whitespace-pre-wrap">{selectedMessage.emailBody}</div>
+                      <div className="text-sm font-medium text-muted-foreground">
+                        Body:
+                      </div>
+                      <div className="whitespace-pre-wrap">
+                        {selectedMessage.emailBody}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -423,7 +486,9 @@ export function CommunicationsClient() {
                 <div>
                   <h4 className="font-medium mb-2">WhatsApp Content</h4>
                   <div className="border rounded-md p-4">
-                    <div className="whitespace-pre-wrap">{selectedMessage.whatsappMessage}</div>
+                    <div className="whitespace-pre-wrap">
+                      {selectedMessage.whatsappMessage}
+                    </div>
                   </div>
                 </div>
               )}
